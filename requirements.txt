@@ -1,0 +1,7 @@
+streamlit>=1.38
+openai>=1.0
+requests>=2.31
+supabase>=2.0
+boto3>=1.34
+google-cloud-texttospeech>=2.16
+google-auth>=2.29
