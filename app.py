@@ -6,6 +6,7 @@ import html
 import os
 import re
 from pathlib import Path
+from urllib.parse import quote
 
 import streamlit as st
 import streamlit.components.v1 as components
@@ -31,6 +32,7 @@ STANDARD_PLAN_EXTRA_STORIES = 30
 FAMILY_PLAN_EXTRA_STORIES = 80
 EXTRA_PACK_STORIES = 10
 BACKGROUND_EXECUTOR = ThreadPoolExecutor(max_workers=4)
+DEFAULT_SUPPORT_EMAIL = "sergheibogaciuc@gmail.com"
 
 st.set_page_config(
     page_title=BRAND_NAME,
@@ -928,6 +930,59 @@ def has_live_payment_links(payment_links):
     return any(payment_links.get(plan_key) for plan_key in ["extra_pack", "standard", "family"])
 
 
+def get_support_email():
+    return get_optional_secret_or_env("SUPPORT_EMAIL", DEFAULT_SUPPORT_EMAIL)
+
+
+def build_mailto_link(email, subject, body=""):
+    safe_email = (email or "").strip()
+    if not safe_email:
+        return ""
+
+    params = [f"subject={quote(subject)}"]
+    if body:
+        params.append(f"body={quote(body)}")
+    return f"mailto:{safe_email}?{'&'.join(params)}"
+
+
+def render_support_panel(copy_pack, user_email=""):
+    support_email = get_support_email()
+    if not support_email:
+        return
+
+    feedback_subject = copy_pack.get("support_feedback_subject", f"{BRAND_NAME} feedback")
+    help_subject = copy_pack.get("support_help_subject", f"{BRAND_NAME} support request")
+    safe_user_email = user_email.strip() or "-"
+
+    feedback_body = copy_pack.get(
+        "support_feedback_body",
+        "Hi,\n\nI'd like to share feedback about Yum-Yum Stories.\n\nEmail: {user_email}\n\nWhat I liked:\n\nWhat felt unclear:\n\nBug or idea:\n",
+    ).format(user_email=safe_user_email)
+    help_body = copy_pack.get(
+        "support_help_body",
+        "Hi,\n\nI need help with Yum-Yum Stories.\n\nEmail: {user_email}\n\nWhat happened:\n\nWhat I expected:\n\nDevice/browser:\n",
+    ).format(user_email=safe_user_email)
+
+    st.markdown(
+        f'<div class="section-label">{copy_pack.get("support_title", "Support")}</div>',
+        unsafe_allow_html=True,
+    )
+    st.caption(copy_pack.get("support_hint", "Questions, bugs, or payment issues? Send us a quick message."))
+    st.link_button(
+        copy_pack.get("support_feedback_btn", "Send feedback"),
+        build_mailto_link(support_email, feedback_subject, feedback_body),
+        use_container_width=True,
+    )
+    st.link_button(
+        copy_pack.get("support_help_btn", "Get help"),
+        build_mailto_link(support_email, help_subject, help_body),
+        use_container_width=True,
+    )
+    st.caption(
+        copy_pack.get("support_email_label", "Support email: {email}").format(email=support_email)
+    )
+
+
 def start_story_generation_job(
     *,
     user_email,
@@ -1097,6 +1152,15 @@ lang_dict = {
         "login_subtitle": "Соберите свою спокойную библиотеку историй для сна, поддержки и роста.",
         "login_btn": "Войти",
         "login_error": "Не удалось войти. Проверь email и пароль.",
+        "support_title": "Поддержка",
+        "support_hint": "Если что-то непонятно, не работает или нужна помощь, можно сразу написать нам.",
+        "support_feedback_btn": "Отправить отзыв",
+        "support_help_btn": "Нужна помощь",
+        "support_email_label": "Почта поддержки: {email}",
+        "support_feedback_subject": "Yum-Yum Stories — отзыв",
+        "support_help_subject": "Yum-Yum Stories — нужна помощь",
+        "support_feedback_body": "Привет!\n\nХочу оставить отзыв по Yum-Yum Stories.\n\nEmail: {user_email}\n\nЧто понравилось:\n\nЧто было непонятно:\n\nБаг или идея:\n",
+        "support_help_body": "Привет!\n\nМне нужна помощь по Yum-Yum Stories.\n\nEmail: {user_email}\n\nЧто произошло:\n\nЧто ожидалось:\n\nУстройство / браузер:\n",
         "intro_skip": "Пропустить",
         "intro_copy": "Сказки для сна, поддержки и маленьких важных побед.",
         "intro_replay": "Посмотреть заставку снова",
@@ -1248,6 +1312,15 @@ lang_dict = {
         "login_subtitle": "Build a calm little library of stories for sleep, connection, and confidence.",
         "login_btn": "Log in",
         "login_error": "Login failed. Please check your email and password.",
+        "support_title": "Support",
+        "support_hint": "If something feels unclear, broken, or you need help, you can message us right away.",
+        "support_feedback_btn": "Send feedback",
+        "support_help_btn": "Get help",
+        "support_email_label": "Support email: {email}",
+        "support_feedback_subject": "Yum-Yum Stories feedback",
+        "support_help_subject": "Yum-Yum Stories support request",
+        "support_feedback_body": "Hi,\n\nI'd like to share feedback about Yum-Yum Stories.\n\nEmail: {user_email}\n\nWhat I liked:\n\nWhat felt unclear:\n\nBug or idea:\n",
+        "support_help_body": "Hi,\n\nI need help with Yum-Yum Stories.\n\nEmail: {user_email}\n\nWhat happened:\n\nWhat I expected:\n\nDevice / browser:\n",
         "intro_skip": "Skip",
         "intro_copy": "Bedtime stories for calm, closeness, and tiny brave steps.",
         "intro_replay": "Replay the intro",
@@ -1399,6 +1472,15 @@ lang_dict = {
         "login_subtitle": "Construiește o bibliotecă liniștită de povești pentru somn, apropiere și creștere.",
         "login_btn": "Autentificare",
         "login_error": "Autentificarea a eșuat. Verifică emailul și parola.",
+        "support_title": "Suport",
+        "support_hint": "Dacă ceva nu este clar, nu funcționează sau ai nevoie de ajutor, ne poți scrie imediat.",
+        "support_feedback_btn": "Trimite feedback",
+        "support_help_btn": "Am nevoie de ajutor",
+        "support_email_label": "Email suport: {email}",
+        "support_feedback_subject": "Yum-Yum Stories — feedback",
+        "support_help_subject": "Yum-Yum Stories — cerere de ajutor",
+        "support_feedback_body": "Salut!\n\nVreau să trimit feedback despre Yum-Yum Stories.\n\nEmail: {user_email}\n\nCe mi-a plăcut:\n\nCe a fost neclar:\n\nBug sau idee:\n",
+        "support_help_body": "Salut!\n\nAm nevoie de ajutor cu Yum-Yum Stories.\n\nEmail: {user_email}\n\nCe s-a întâmplat:\n\nCe mă așteptam să se întâmple:\n\nDispozitiv / browser:\n",
         "intro_skip": "Omite",
         "intro_copy": "Povești de seară pentru liniște, apropiere și pași curajoși.",
         "intro_replay": "Redă intro din nou",
@@ -1657,6 +1739,8 @@ if not st.session_state.get("logged_in", False):
             else:
                 st.error(copy_pack.get("login_error", "Login failed"))
 
+        render_support_panel(copy_pack, st.session_state.get("login_email", ""))
+
 else:
     copy_pack = lang_dict.get(st.session_state.sel_lang, lang_dict["English"])
     stories = get_user_stories(st.session_state.user_email)
@@ -1807,6 +1891,9 @@ else:
                 key="bg_music_volume",
             )
             st.caption(copy_pack.get("music_hint", ""))
+
+        st.divider()
+        render_support_panel(copy_pack, st.session_state.get("user_email", ""))
 
         if SHOW_INTRO_REPLAY_BUTTON:
             if st.button(
