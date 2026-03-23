@@ -25,6 +25,7 @@ BRAND_NAME = "Yum-Yum Stories"
 DEFAULT_TTS_PROVIDER = "openai"
 SHOW_TTS_PROVIDER_SELECTOR = False
 SHOW_INTRO_REPLAY_BUTTON = False
+ENABLE_INTRO_OVERLAY = False
 MONTHLY_STORY_LIMIT = 30
 STANDARD_PLAN_EXTRA_STORIES = 30
 FAMILY_PLAN_EXTRA_STORIES = 80
@@ -78,6 +79,8 @@ def get_intro_asset():
 
 
 def render_intro_overlay(copy_pack):
+    if not ENABLE_INTRO_OVERLAY:
+        return False
     asset = get_intro_asset()
     if not asset:
         return False
@@ -1325,7 +1328,7 @@ if "sel_lang" not in st.session_state:
 if "page_mode" not in st.session_state:
     st.session_state.page_mode = "form"
 if "show_intro" not in st.session_state:
-    st.session_state.show_intro = True
+    st.session_state.show_intro = ENABLE_INTRO_OVERLAY
 if "force_intro" not in st.session_state:
     st.session_state.force_intro = False
 if "details_input" not in st.session_state:
