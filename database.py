@@ -149,3 +149,20 @@ def delete_story(story_id):
         return True
     except Exception:
         return False
+
+
+def track_event(event_name, user_email="", properties=None):
+    payload = {
+        "event_name": (event_name or "").strip(),
+        "user_email": (user_email or "").strip() or None,
+        "properties": properties or {},
+    }
+
+    if not payload["event_name"]:
+        return False
+
+    try:
+        get_supabase().table("analytics_events").insert(payload).execute()
+        return True
+    except Exception:
+        return False

@@ -19,7 +19,15 @@ from ai_engine import (
     get_speech_b64,
     get_story_note_transcription,
 )
-from database import delete_story, get_user_stories, save_story, sign_in_user, sign_out_user, update_audio
+from database import (
+    delete_story,
+    get_user_stories,
+    save_story,
+    sign_in_user,
+    sign_out_user,
+    track_event,
+    update_audio,
+)
 from styles import apply_styles
 
 BRAND_NAME = "Yum-Yum Stories"
@@ -33,6 +41,8 @@ FAMILY_PLAN_EXTRA_STORIES = 80
 EXTRA_PACK_STORIES = 10
 BACKGROUND_EXECUTOR = ThreadPoolExecutor(max_workers=4)
 DEFAULT_SUPPORT_EMAIL = "sergheibogaciuc@gmail.com"
+AGE_BAND_CODES = ["3-5", "6-8", "9-11"]
+STORY_GOAL_CODES = ["sleep", "calm", "confidence", "big_feelings"]
 
 st.set_page_config(
     page_title=BRAND_NAME,
@@ -497,6 +507,37 @@ def validate_story_request(child_name, skills, copy_pack):
     return errors
 
 
+def get_age_band_label(copy_pack, age_code):
+    return copy_pack.get("age_bands", {}).get(age_code, age_code)
+
+
+def get_story_goal_label(copy_pack, goal_code):
+    return copy_pack.get("story_goals", {}).get(goal_code, goal_code)
+
+
+def prefill_followup_story(story, copy_pack):
+    title = story.get("title", copy_pack.get("story_fallback", "Story"))
+    child_name = (story.get("child_name") or "").strip()
+    previous_excerpt = " ".join((story.get("story_text") or "").strip().split())[:320]
+    continuation_note = copy_pack.get(
+        "continue_story_seed",
+        "Create a fresh bedtime story in the same gentle world as \"{title}\", but make it a new adventure.",
+    ).format(title=title)
+
+    if previous_excerpt:
+        continuation_note = (
+            f"{continuation_note}\n\n"
+            f'{copy_pack.get("continue_story_context_label", "Previous story context")}: {previous_excerpt}'
+        )
+
+    st.session_state.form_child_name = child_name
+    st.session_state.details_input = continuation_note
+    st.session_state.page_mode = "form"
+    st.session_state.view_story = None
+    st.session_state.form_story_goal = st.session_state.get("form_story_goal", STORY_GOAL_CODES[0])
+    st.rerun()
+
+
 def parse_story_created_at(story):
     raw_value = (
         story.get("created_at")
@@ -704,6 +745,11 @@ def render_story_library(stories, copy_pack, prefix="lib"):
                 use_container_width=True,
                 help=full_title,
             ):
+                track_event(
+                    "story_opened",
+                    st.session_state.get("user_email", ""),
+                    {"story_id": story.get("id"), "source": prefix},
+                )
                 st.session_state.view_story = story
                 st.session_state.page_mode = "view"
                 st.rerun()
@@ -797,6 +843,9 @@ def build_story_payload(
     details,
     time_val,
     use_img,
+    age_band,
+    story_goal,
+    favorite_hero,
 ):
     full_text = generate_story_text(
         child_name,
@@ -804,6 +853,9 @@ def build_story_payload(
         skills,
         details,
         time_val,
+        age_band=age_band,
+        story_goal=story_goal,
+        favorite_hero=favorite_hero,
     )
     if not full_text:
         return {
@@ -821,6 +873,7 @@ def build_story_payload(
             lang=selected_lang,
             skills=skills,
             details=details,
+            favorite_hero=favorite_hero,
         )
 
     result = save_story(
@@ -995,6 +1048,9 @@ def start_story_generation_job(
     use_audio,
     voice_id,
     tts_provider,
+    age_band,
+    story_goal,
+    favorite_hero,
 ):
     future = BACKGROUND_EXECUTOR.submit(
         build_story_payload,
@@ -1005,6 +1061,9 @@ def start_story_generation_job(
         details=details,
         time_val=time_val,
         use_img=use_img,
+        age_band=age_band,
+        story_goal=story_goal,
+        favorite_hero=favorite_hero,
     )
     st.session_state.story_generation_job = {
         "future": future,
@@ -1055,6 +1114,11 @@ def render_background_job_watcher(copy_pack):
 
             if result.get("ok"):
                 current_story = result.get("story")
+                track_event(
+                    "story_create_completed",
+                    st.session_state.get("user_email", ""),
+                    {"story_id": current_story.get("id")},
+                )
                 if story_job.get("use_audio") and story_job.get("voice_id"):
                     start_audio_generation_job(
                         current_story["id"],
@@ -1091,6 +1155,11 @@ def render_background_job_watcher(copy_pack):
 
             if audio_b64:
                 update_audio(audio_job["story_id"], audio_b64)
+                track_event(
+                    "narration_generated",
+                    st.session_state.get("user_email", ""),
+                    {"story_id": audio_job.get("story_id"), "provider": audio_job.get("tts_provider", "")},
+                )
                 current_story = st.session_state.get("view_story")
                 if current_story and current_story.get("id") == audio_job.get("story_id"):
                     current_story["audio_base64"] = audio_b64
@@ -1142,6 +1211,10 @@ def reset_authenticated_session():
     st.session_state.audio_generation_job = None
     st.session_state.story_generation_error = ""
     st.session_state.audio_generation_error = ""
+    st.session_state.form_child_name = ""
+    st.session_state.form_age_band = AGE_BAND_CODES[0]
+    st.session_state.form_story_goal = STORY_GOAL_CODES[0]
+    st.session_state.form_favorite_hero = ""
 
 
 lang_dict = {
@@ -1199,6 +1272,8 @@ lang_dict = {
         "empty_story_text": "Текст сказки пустой или не сохранился.",
         "no_saved_stories": "Пока нет сохранённых сказок",
         "section_for_whom": "Для кого сказка",
+        "section_age": "Возраст",
+        "section_goal": "Что важно поддержать этой сказкой",
         "section_language": "Язык истории",
         "section_skill": "Навык или тема",
         "section_format": "Что добавить",
@@ -1263,7 +1338,27 @@ lang_dict = {
         "plan_activation_notice": "В beta активирован пакет: {plan}. Новый лимит в этом месяце: {limit}.",
         "section_parent_note": "Каждая история создаётся с мягкой развивающей линией, без жёстких нравоучений и лишней тревоги.",
         "summary_template": "История для {child_name} на {time_val} мин: {skills}.",
+        "summary_template_rich": "История для {child_name} на {time_val} мин ({age_band}): {skills}. Фокус: {goal}.",
         "summary_default_skills": "мягкая поддержка и спокойствие",
+        "age_selector": "Возраст",
+        "goal_selector": "Фокус сказки",
+        "favorite_hero_label": "Любимый герой или зверёк",
+        "favorite_hero_placeholder": "Например: лисёнок, единорог, щенок или доктор Мишка",
+        "favorite_hero_help": "Если у ребёнка есть любимый персонаж, сказка быстрее становится своей.",
+        "age_bands": {
+            "3-5": "3-5 лет",
+            "6-8": "6-8 лет",
+            "9-11": "9-11 лет",
+        },
+        "story_goals": {
+            "sleep": "Помочь мягко заснуть",
+            "calm": "Успокоить тревогу и напряжение",
+            "confidence": "Поддержать уверенность",
+            "big_feelings": "Прожить сильные эмоции",
+        },
+        "btn_continue_story": "Следующая сказка в этом мире",
+        "continue_story_seed": "Создай новую спокойную сказку перед сном в том же мягком мире, что и \"{title}\", но с новым приключением.",
+        "continue_story_context_label": "Контекст прошлой сказки",
         "opt_img": "Добавить иллюстрацию",
         "opt_audio": "Добавить озвучку",
         "voice_hint": "Выберите, каким голосом будет звучать сказка.",
@@ -1359,6 +1454,8 @@ lang_dict = {
         "empty_story_text": "The story text is empty or was not saved.",
         "no_saved_stories": "No saved stories yet",
         "section_for_whom": "Who is this story for",
+        "section_age": "Age range",
+        "section_goal": "Tonight's focus",
         "section_language": "Story language",
         "section_skill": "Skill or theme",
         "section_format": "What to include",
@@ -1423,7 +1520,27 @@ lang_dict = {
         "plan_activation_notice": "Beta access activated: {plan}. New limit this month: {limit}.",
         "section_parent_note": "Each story is built to model the chosen skill gently, without fear, shame, or heavy-handed moralizing.",
         "summary_template": "A {time_val}-minute story for {child_name}: {skills}.",
+        "summary_template_rich": "A {time_val}-minute story for {child_name} ({age_band}): {skills}. Focus: {goal}.",
         "summary_default_skills": "gentle support and calm",
+        "age_selector": "Age range",
+        "goal_selector": "Tonight's focus",
+        "favorite_hero_label": "Favorite hero or animal",
+        "favorite_hero_placeholder": "For example: a fox, unicorn, puppy, or Doctor Bear",
+        "favorite_hero_help": "Using a familiar character often makes the story feel instantly theirs.",
+        "age_bands": {
+            "3-5": "Ages 3-5",
+            "6-8": "Ages 6-8",
+            "9-11": "Ages 9-11",
+        },
+        "story_goals": {
+            "sleep": "Drift to sleep gently",
+            "calm": "Calm worries and tension",
+            "confidence": "Build confidence",
+            "big_feelings": "Work through big feelings",
+        },
+        "btn_continue_story": "Create tomorrow's story",
+        "continue_story_seed": "Create a new soothing bedtime story in the same gentle world as \"{title}\", but make it a fresh adventure.",
+        "continue_story_context_label": "Previous story context",
         "opt_img": "Add illustration",
         "opt_audio": "Add narration",
         "voice_hint": "Choose how the story should sound.",
@@ -1519,6 +1636,8 @@ lang_dict = {
         "empty_story_text": "Textul poveștii este gol sau nu a fost salvat.",
         "no_saved_stories": "Încă nu există povești salvate",
         "section_for_whom": "Pentru cine este povestea",
+        "section_age": "Vârsta",
+        "section_goal": "Focusul din această seară",
         "section_language": "Limba poveștii",
         "section_skill": "Abilitate sau temă",
         "section_format": "Ce includem",
@@ -1583,7 +1702,27 @@ lang_dict = {
         "plan_activation_notice": "În beta a fost activat pachetul: {plan}. Noua limită din această lună este: {limit}.",
         "section_parent_note": "Fiecare poveste modelează blând tema aleasă, fără frică, rușinare sau morală apăsătoare.",
         "summary_template": "O poveste de {time_val} minute pentru {child_name}: {skills}.",
+        "summary_template_rich": "O poveste de {time_val} minute pentru {child_name} ({age_band}): {skills}. Focus: {goal}.",
         "summary_default_skills": "sprijin blând și liniște",
+        "age_selector": "Vârstă",
+        "goal_selector": "Focusul serii",
+        "favorite_hero_label": "Erou sau animăluț preferat",
+        "favorite_hero_placeholder": "De exemplu: o vulpiță, un unicorn, un cățel sau Doctor Ursuleț",
+        "favorite_hero_help": "Un personaj preferat face povestea să fie simțită imediat ca fiind a lui.",
+        "age_bands": {
+            "3-5": "3-5 ani",
+            "6-8": "6-8 ani",
+            "9-11": "9-11 ani",
+        },
+        "story_goals": {
+            "sleep": "Să adoarmă mai ușor",
+            "calm": "Să se liniștească",
+            "confidence": "Să capete încredere",
+            "big_feelings": "Să își proceseze emoțiile puternice",
+        },
+        "btn_continue_story": "Creează povestea de mâine",
+        "continue_story_seed": "Creează o nouă poveste liniștitoare de seară în același univers blând ca \"{title}\", dar cu o aventură nouă.",
+        "continue_story_context_label": "Contextul poveștii anterioare",
         "opt_img": "Adaugă ilustrație",
         "opt_audio": "Adaugă narațiune",
         "voice_hint": "Alege cum vrei să sune povestea.",
@@ -1673,6 +1812,14 @@ if "story_generation_error" not in st.session_state:
     st.session_state.story_generation_error = ""
 if "audio_generation_error" not in st.session_state:
     st.session_state.audio_generation_error = ""
+if "form_child_name" not in st.session_state:
+    st.session_state.form_child_name = ""
+if "form_age_band" not in st.session_state:
+    st.session_state.form_age_band = AGE_BAND_CODES[0]
+if "form_story_goal" not in st.session_state:
+    st.session_state.form_story_goal = STORY_GOAL_CODES[0]
+if "form_favorite_hero" not in st.session_state:
+    st.session_state.form_favorite_hero = ""
 
 
 lang_options = list(lang_dict.keys())
@@ -1728,6 +1875,11 @@ if not st.session_state.get("logged_in", False):
         if submitted:
             sign_in_result = sign_in_user(email, password)
             if sign_in_result.get("ok"):
+                track_event(
+                    "login_success",
+                    sign_in_result.get("email", email.strip()),
+                    {"provider": sign_in_result.get("provider", "")},
+                )
                 st.session_state.logged_in = True
                 st.session_state.user_email = sign_in_result.get("email", email.strip())
                 st.session_state.auth_provider = sign_in_result.get("provider", "")
@@ -1957,25 +2109,42 @@ else:
 
         story_text = (story.get("story_text") or "").strip()
 
-        voice_button_label = (
-            copy_pack.get("btn_revoice_story", "Re-narrate with current voice")
-            if story.get("audio_base64")
-            else copy_pack.get("btn_voice_story", "Narrate this story")
-        )
-        if st.button(
-            voice_button_label,
-            type="secondary",
-            use_container_width=True,
-            key=f"voice_current_story_{story.get('id', 'current')}",
-            disabled=audio_pending_for_current_story,
-        ):
-            if not voice_id:
-                st.warning(copy_pack.get("warning_voice_missing", "First choose a voice in the left sidebar."))
-            elif not story_text:
-                st.warning(copy_pack.get("empty_story_text", "Story text is empty."))
-            else:
-                start_audio_generation_job(story["id"], story_text, voice_id, tts_provider)
-                st.rerun()
+        action_left, action_right = st.columns(2)
+
+        with action_left:
+            if st.button(
+                copy_pack.get("btn_continue_story", "Create tomorrow's story"),
+                type="secondary",
+                use_container_width=True,
+                key=f"continue_story_{story.get('id', 'current')}",
+            ):
+                track_event(
+                    "story_continue_started",
+                    st.session_state.get("user_email", ""),
+                    {"story_id": story.get("id")},
+                )
+                prefill_followup_story(story, copy_pack)
+
+        with action_right:
+            voice_button_label = (
+                copy_pack.get("btn_revoice_story", "Re-narrate with current voice")
+                if story.get("audio_base64")
+                else copy_pack.get("btn_voice_story", "Narrate this story")
+            )
+            if st.button(
+                voice_button_label,
+                type="secondary",
+                use_container_width=True,
+                key=f"voice_current_story_{story.get('id', 'current')}",
+                disabled=bool(audio_pending_for_current_story),
+            ):
+                if not voice_id:
+                    st.warning(copy_pack.get("warning_voice_missing", "First choose a voice in the left sidebar."))
+                elif not story_text:
+                    st.warning(copy_pack.get("empty_story_text", "Story text is empty."))
+                else:
+                    start_audio_generation_job(story["id"], story_text, voice_id, tts_provider)
+                    st.rerun()
 
         if story.get("audio_base64"):
             try:
@@ -2026,8 +2195,39 @@ else:
             )
             child_name = st.text_input(
                 copy_pack.get("child_name", "Child's name"),
-                value="",
+                key="form_child_name",
                 placeholder=copy_pack.get("child_placeholder", ""),
+            )
+
+            st.markdown(
+                f'<div class="section-label">{copy_pack.get("section_age", "Age range")}</div>',
+                unsafe_allow_html=True,
+            )
+            age_band = st.selectbox(
+                copy_pack.get("age_selector", "Age range"),
+                AGE_BAND_CODES,
+                index=AGE_BAND_CODES.index(st.session_state.form_age_band)
+                if st.session_state.form_age_band in AGE_BAND_CODES
+                else 0,
+                format_func=lambda value: get_age_band_label(copy_pack, value),
+                key="form_age_band",
+                label_visibility="collapsed",
+            )
+
+            section_goal_label = copy_pack.get("section_goal", "Tonight's focus")
+            st.markdown(
+                f'<div class="section-label">{section_goal_label}</div>',
+                unsafe_allow_html=True,
+            )
+            story_goal = st.selectbox(
+                copy_pack.get("goal_selector", "Tonight's focus"),
+                STORY_GOAL_CODES,
+                index=STORY_GOAL_CODES.index(st.session_state.form_story_goal)
+                if st.session_state.form_story_goal in STORY_GOAL_CODES
+                else 0,
+                format_func=lambda value: get_story_goal_label(copy_pack, value),
+                key="form_story_goal",
+                label_visibility="collapsed",
             )
 
             st.markdown(
@@ -2056,6 +2256,13 @@ else:
                 label_visibility="collapsed",
             )
             st.caption(copy_pack.get("skills_help", ""))
+
+            favorite_hero = st.text_input(
+                copy_pack.get("favorite_hero_label", "Favorite hero or animal"),
+                key="form_favorite_hero",
+                placeholder=copy_pack.get("favorite_hero_placeholder", ""),
+            )
+            st.caption(copy_pack.get("favorite_hero_help", ""))
 
             st.markdown(
                 f'<div class="section-label">{copy_pack.get("section_format", "Format")}</div>',
@@ -2140,10 +2347,15 @@ else:
                     )
 
             selected_skills = ", ".join(skills) if skills else copy_pack.get("summary_default_skills", "")
-            story_summary = copy_pack.get("summary_template", "{skills}").format(
+            story_summary = copy_pack.get(
+                "summary_template_rich",
+                copy_pack.get("summary_template", "{skills}"),
+            ).format(
                 child_name=child_name.strip() or copy_pack.get("summary_fallback_child_name", "your child"),
                 time_val=st.session_state.time_val,
                 skills=selected_skills,
+                age_band=get_age_band_label(copy_pack, age_band),
+                goal=get_story_goal_label(copy_pack, story_goal),
             )
             st.markdown(
                 f'<div class="soft-info-chip">{html.escape(story_summary)}</div>',
@@ -2173,6 +2385,19 @@ else:
                     for error in errors:
                         st.error(error)
                 else:
+                    track_event(
+                        "story_create_started",
+                        st.session_state.get("user_email", ""),
+                        {
+                            "lang": st.session_state.sel_lang,
+                            "time_val": st.session_state.time_val,
+                            "use_audio": use_audio,
+                            "use_img": use_img,
+                            "age_band": age_band,
+                            "story_goal": story_goal,
+                            "favorite_hero": bool((favorite_hero or "").strip()),
+                        },
+                    )
                     start_story_generation_job(
                         user_email=st.session_state.user_email,
                         child_name=child_name.strip(),
@@ -2184,5 +2409,8 @@ else:
                         use_audio=use_audio,
                         voice_id=voice_id,
                         tts_provider=tts_provider,
+                        age_band=age_band,
+                        story_goal=story_goal,
+                        favorite_hero=favorite_hero.strip(),
                     )
                     st.rerun()

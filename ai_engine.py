@@ -114,10 +114,22 @@ def _estimate_word_target(time_val):
     return targets.get(time_val, "600-900 words")
 
 
-def generate_story_text(child_name, lang, skills, details, time_val):
+def generate_story_text(
+    child_name,
+    lang,
+    skills,
+    details,
+    time_val,
+    age_band="",
+    story_goal="",
+    favorite_hero="",
+):
     skills_text = ", ".join(skills) if skills else "gentle confidence, calm, and kindness"
     story_context = details or "Create an original cozy bedtime situation that fits a young child."
     word_target = _estimate_word_target(time_val)
+    age_text = age_band or "young child"
+    story_goal_text = story_goal or "help the child feel safe, seen, and gently supported at bedtime"
+    favorite_hero_text = favorite_hero or "use an original cozy character if helpful"
     model = os.getenv("OPENAI_MODEL") or (
         st.secrets["OPENAI_MODEL"] if "OPENAI_MODEL" in st.secrets else "gpt-5.3-chat-latest"
     )
@@ -133,7 +145,10 @@ Write a complete bedtime fairy tale in {lang}.
 
 Story requirements:
 - The child's name is: {child_name}
+- The approximate age range is: {age_text}
 - Gently support these themes or skills: {skills_text}
+- Bedtime goal for tonight: {story_goal_text}
+- Favorite hero, animal, or companion to include when helpful: {favorite_hero_text}
 - Story context to include when helpful: {story_context}
 - Target reading time: about {time_val} minutes ({word_target})
 - The first line must be a short, beautiful title only
@@ -151,6 +166,7 @@ Tone and safety requirements:
 
 Writing quality:
 - Make the child feel seen, capable, and comforted
+- Match the emotional complexity and vocabulary to the child's age range
 - Use sensory details, but keep the pacing soft enough for bedtime
 - Keep the plot coherent and complete
 - Do not use markdown, bullet points, or section labels
@@ -172,10 +188,18 @@ Return only:
     return full_text.replace(":::writing", "").replace("###", "").strip()
 
 
-def generate_image(title, child_name=None, lang=None, skills=None, details=None):
+def generate_image(
+    title,
+    child_name=None,
+    lang=None,
+    skills=None,
+    details=None,
+    favorite_hero="",
+):
     try:
         skills_text = ", ".join(skills or [])
         details_text = details or "a calm and magical bedtime moment"
+        favorite_hero_text = favorite_hero or "an original cozy companion"
         prompt = f"""
 Create a warm storybook cover illustration for a children's bedtime fairy tale.
 
@@ -191,6 +215,7 @@ Story context:
 - child's name: {child_name or "child"}
 - language context: {lang or "neutral"}
 - themes: {skills_text or "kindness and emotional safety"}
+- favorite hero or companion: {favorite_hero_text}
 - plot hints: {details_text}
 """.strip()
 
