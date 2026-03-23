@@ -1839,7 +1839,7 @@ else:
         story = st.session_state.view_story
         bg_music_ready = mount_bg_music(st.session_state.bg_music_volume / 100)
         audio_job = st.session_state.get("audio_generation_job")
-        audio_pending_for_current_story = (
+        audio_pending_for_current_story = bool(
             audio_job
             and audio_job.get("story_id") == story.get("id")
             and audio_job.get("future")
