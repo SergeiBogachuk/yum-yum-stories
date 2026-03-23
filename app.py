@@ -30,6 +30,7 @@ MONTHLY_STORY_LIMIT = 30
 STANDARD_PLAN_EXTRA_STORIES = 30
 FAMILY_PLAN_EXTRA_STORIES = 80
 EXTRA_PACK_STORIES = 10
+BACKGROUND_EXECUTOR = ThreadPoolExecutor(max_workers=4)
 
 st.set_page_config(
     page_title=BRAND_NAME,
@@ -785,6 +786,69 @@ def prepare_story_media(
     return image_url, audio_b64, audio_error
 
 
+def build_story_payload(
+    *,
+    user_email,
+    child_name,
+    selected_lang,
+    skills,
+    details,
+    time_val,
+    use_img,
+):
+    full_text = generate_story_text(
+        child_name,
+        selected_lang,
+        skills,
+        details,
+        time_val,
+    )
+    if not full_text:
+        return {
+            "ok": False,
+            "error_code": "story_generation_failed",
+        }
+
+    title, story_body = extract_story_parts(full_text, "Story")
+    image_url = None
+
+    if use_img:
+        image_url = generate_image(
+            title=title,
+            child_name=child_name,
+            lang=selected_lang,
+            skills=skills,
+            details=details,
+        )
+
+    result = save_story(
+        {
+            "user_email": user_email,
+            "child_name": child_name,
+            "title": title,
+            "story_text": story_body,
+            "image_url": image_url,
+        }
+    )
+
+    if not result or not getattr(result, "data", None):
+        return {
+            "ok": False,
+            "error_code": "story_save_failed",
+        }
+
+    current_story = result.data[0]
+    current_story["title"] = title
+    current_story["story_text"] = story_body
+    current_story["image_url"] = image_url
+
+    return {
+        "ok": True,
+        "story": current_story,
+        "story_text": story_body,
+    }
+
+
 def get_story_note_language_code(selected_lang):
     return {
         "Русский": "ru",
@@ -864,8 +928,50 @@ def has_live_payment_links(payment_links):
     return any(payment_links.get(plan_key) for plan_key in ["extra_pack", "standard", "family"])
 
 
-def queue_story_audio_generation(story_id, story_text, voice_id, tts_provider):
-    st.session_state.pending_audio_job = {
+def start_story_generation_job(
+    *,
+    user_email,
+    child_name,
+    selected_lang,
+    skills,
+    details,
+    time_val,
+    use_img,
+    use_audio,
+    voice_id,
+    tts_provider,
+):
+    future = BACKGROUND_EXECUTOR.submit(
+        build_story_payload,
+        user_email=user_email,
+        child_name=child_name,
+        selected_lang=selected_lang,
+        skills=skills,
+        details=details,
+        time_val=time_val,
+        use_img=use_img,
+    )
+    st.session_state.story_generation_job = {
+        "future": future,
+        "use_audio": use_audio,
+        "voice_id": voice_id,
+        "tts_provider": tts_provider,
+    }
+
+
+def clear_story_generation_job():
+    st.session_state.story_generation_job = None
+
+
+def start_audio_generation_job(story_id, story_text, voice_id, tts_provider):
+    future = BACKGROUND_EXECUTOR.submit(
+        generate_audio_with_provider,
+        tts_provider,
+        story_text,
+        voice_id,
+    )
+    st.session_state.audio_generation_job = {
+        "future": future,
         "story_id": story_id,
         "story_text": story_text,
         "voice_id": voice_id,
@@ -873,8 +979,93 @@ def queue_story_audio_generation(story_id, story_text, voice_id, tts_provider):
     }
 
 
-def clear_pending_story_audio():
-    st.session_state.pending_audio_job = None
+def clear_audio_generation_job():
+    st.session_state.audio_generation_job = None
+
+
+@st.fragment(run_every="2s")
+def render_background_job_watcher(copy_pack):
+    story_job = st.session_state.get("story_generation_job")
+    audio_job = st.session_state.get("audio_generation_job")
+
+    if story_job:
+        story_future = story_job.get("future")
+        if story_future and story_future.done():
+            clear_story_generation_job()
+            try:
+                result = story_future.result()
+            except Exception as error:
+                st.session_state.story_generation_error = f"{type(error).__name__}: {error}"
+                st.rerun()
+
+            if result.get("ok"):
+                current_story = result.get("story")
+                if story_job.get("use_audio") and story_job.get("voice_id"):
+                    start_audio_generation_job(
+                        current_story["id"],
+                        result.get("story_text", current_story.get("story_text", "")),
+                        story_job.get("voice_id"),
+                        story_job.get("tts_provider", DEFAULT_TTS_PROVIDER),
+                    )
+                st.session_state.view_story = current_story
+                st.session_state.page_mode = "view"
+                st.rerun()
+            else:
+                error_code = result.get("error_code", "")
+                if error_code == "story_save_failed":
+                    st.session_state.story_generation_error = copy_pack.get(
+                        "error_save_story",
+                        "Failed to save the story.",
+                    )
+                else:
+                    st.session_state.story_generation_error = copy_pack.get(
+                        "error_gen_story",
+                        "Failed to generate the story text.",
+                    )
+                st.rerun()
+
+    if audio_job:
+        audio_future = audio_job.get("future")
+        if audio_future and audio_future.done():
+            clear_audio_generation_job()
+            try:
+                audio_b64, audio_error = audio_future.result()
+            except Exception as error:
+                audio_b64 = None
+                audio_error = f"{type(error).__name__}: {error}"
+
+            if audio_b64:
+                update_audio(audio_job["story_id"], audio_b64)
+                current_story = st.session_state.get("view_story")
+                if current_story and current_story.get("id") == audio_job.get("story_id"):
+                    current_story["audio_base64"] = audio_b64
+                    st.session_state.view_story = current_story
+            elif audio_error:
+                st.session_state.audio_generation_error = audio_error
+
+            st.rerun()
+
+    if story_job and story_job.get("future") and not story_job["future"].done():
+        st.info(
+            copy_pack.get(
+                "story_pending_notice",
+                "The story is being created in the background. You can keep using the page.",
+            )
+        )
+        st.caption(
+            copy_pack.get(
+                "story_pending_hint",
+                "You can change volume and other settings. Generation will keep going.",
+            )
+        )
+    elif audio_job and audio_job.get("future") and not audio_job["future"].done():
+        st.info(copy_pack.get("audio_pending_notice", "Your story is ready. Narration is being added now."))
+        st.caption(
+            copy_pack.get(
+                "audio_pending_hint",
+                "You can keep browsing while narration is finishing in the background.",
+            )
+        )
 
 
 def reset_authenticated_session():
@@ -892,7 +1083,10 @@ def reset_authenticated_session():
     st.session_state.voice_note_pending_process = False
     st.session_state.voice_note_status = ""
     st.session_state.voice_note_error_message = ""
-    st.session_state.pending_audio_job = None
+    st.session_state.story_generation_job = None
+    st.session_state.audio_generation_job = None
+    st.session_state.story_generation_error = ""
+    st.session_state.audio_generation_error = ""
 
 
 lang_dict = {
@@ -951,8 +1145,11 @@ lang_dict = {
         "spinner_voice": "Добавляем голос...",
         "spinner_cover": "Рисуем обложку...",
         "spinner_media": "Готовим иллюстрацию и голос...",
+        "story_pending_notice": "Сказка создаётся в фоне. Можно продолжать пользоваться страницей.",
+        "story_pending_hint": "Можно менять громкость и другие настройки — процесс не прервётся.",
         "audio_pending_notice": "Сказка уже готова. Озвучка добавляется прямо сейчас.",
         "audio_pending_spinner": "Добавляем озвучку...",
+        "audio_pending_hint": "Можно продолжать пользоваться страницей, пока голос догружается.",
         "error_save_story": "Не удалось сохранить сказку.",
         "error_gen_story": "Не удалось сгенерировать текст сказки.",
         "warning_audio_failed": "Не удалось добавить озвучку. Попробуй другой голос.",
@@ -1099,8 +1296,11 @@ lang_dict = {
         "spinner_voice": "Adding narration...",
         "spinner_cover": "Painting the cover...",
         "spinner_media": "Preparing illustration and narration...",
+        "story_pending_notice": "Your story is being created in the background.",
+        "story_pending_hint": "You can keep adjusting settings while the generation continues.",
         "audio_pending_notice": "Your story is ready. Narration is being added now.",
         "audio_pending_spinner": "Adding narration...",
+        "audio_pending_hint": "You can keep using the app while narration finishes in the background.",
         "error_save_story": "Failed to save the story.",
         "error_gen_story": "Failed to generate the story text.",
         "warning_audio_failed": "We couldn't add narration. Try another voice.",
@@ -1247,8 +1447,11 @@ lang_dict = {
         "spinner_voice": "Adăugăm vocea...",
         "spinner_cover": "Desenăm coperta...",
         "spinner_media": "Pregătim ilustrația și narațiunea...",
+        "story_pending_notice": "Povestea se creează în fundal.",
+        "story_pending_hint": "Poți schimba volumul și alte setări fără să oprești procesul.",
         "audio_pending_notice": "Povestea este deja gata. Adăugăm acum și narațiunea.",
         "audio_pending_spinner": "Adăugăm narațiunea...",
+        "audio_pending_hint": "Poți continua să folosești aplicația cât timp narațiunea se termină în fundal.",
         "error_save_story": "Povestea nu a putut fi salvată.",
         "error_gen_story": "Textul poveștii nu a putut fi generat.",
         "warning_audio_failed": "Nu am putut adăuga narațiunea. Încearcă altă voce.",
@@ -1380,8 +1583,14 @@ if "auth_access_token" not in st.session_state:
     st.session_state.auth_access_token = ""
 if "auth_refresh_token" not in st.session_state:
     st.session_state.auth_refresh_token = ""
-if "pending_audio_job" not in st.session_state:
-    st.session_state.pending_audio_job = None
+if "story_generation_job" not in st.session_state:
+    st.session_state.story_generation_job = None
+if "audio_generation_job" not in st.session_state:
+    st.session_state.audio_generation_job = None
+if "story_generation_error" not in st.session_state:
+    st.session_state.story_generation_error = ""
+if "audio_generation_error" not in st.session_state:
+    st.session_state.audio_generation_error = ""
 
 
 lang_options = list(lang_dict.keys())
@@ -1458,6 +1667,8 @@ else:
     monthly_limit_reached = monthly_stories_left <= 0
     next_reset_date = get_next_month_reset_date()
     billing_notice = st.session_state.pop("billing_notice", "")
+    story_generation_error = st.session_state.pop("story_generation_error", "")
+    audio_generation_error = st.session_state.pop("audio_generation_error", "")
 
     with st.sidebar:
         try:
@@ -1615,9 +1826,25 @@ else:
             st.session_state.page_mode = "form"
             st.rerun()
 
+    render_background_job_watcher(copy_pack)
+    if story_generation_error:
+        st.error(story_generation_error)
+    if audio_generation_error:
+        st.warning(copy_pack.get("warning_audio_failed", "Narration was not generated. Please try again."))
+        st.caption(
+            f"{copy_pack.get('warning_audio_failed_reason', 'Technical reason')}: {audio_generation_error}"
+        )
+
     if st.session_state.page_mode == "view" and st.session_state.view_story:
         story = st.session_state.view_story
         bg_music_ready = mount_bg_music(st.session_state.bg_music_volume / 100)
+        audio_job = st.session_state.get("audio_generation_job")
+        audio_pending_for_current_story = (
+            audio_job
+            and audio_job.get("story_id") == story.get("id")
+            and audio_job.get("future")
+            and not audio_job["future"].done()
+        )
 
         top_left, top_right = st.columns([1, 6])
 
@@ -1653,32 +1880,15 @@ else:
             type="secondary",
             use_container_width=True,
             key=f"voice_current_story_{story.get('id', 'current')}",
+            disabled=audio_pending_for_current_story,
         ):
             if not voice_id:
                 st.warning(copy_pack.get("warning_voice_missing", "First choose a voice in the left sidebar."))
             elif not story_text:
                 st.warning(copy_pack.get("empty_story_text", "Story text is empty."))
             else:
-                with st.spinner(copy_pack.get("spinner_voice", "Generating voice...")):
-                    audio_b64, audio_error = generate_audio_with_provider(
-                        tts_provider, story_text, voice_id
-                    )
-                if audio_b64:
-                    update_audio(story["id"], audio_b64)
-                    story["audio_base64"] = audio_b64
-                    st.session_state.view_story = story
-                    st.rerun()
-                else:
-                    st.warning(
-                        copy_pack.get(
-                            "warning_audio_failed",
-                            "Narration was not generated. Please try again.",
-                        )
-                    )
-                    if audio_error:
-                        st.caption(
-                            f"{copy_pack.get('warning_audio_failed_reason', 'Technical reason')}: {audio_error}"
-                        )
+                start_audio_generation_job(story["id"], story_text, voice_id, tts_provider)
+                st.rerun()
 
         if story.get("audio_base64"):
             try:
@@ -1703,39 +1913,6 @@ else:
             )
         else:
             st.warning(copy_pack.get("empty_story_text", "Story text is empty."))
-
-        pending_audio_job = st.session_state.get("pending_audio_job")
-        if (
-            not story.get("audio_base64")
-            and pending_audio_job
-            and pending_audio_job.get("story_id") == story.get("id")
-            and pending_audio_job.get("voice_id")
-            and story_text
-        ):
-            st.info(copy_pack.get("audio_pending_notice", "Your story is ready. Narration is being added now."))
-            with st.spinner(copy_pack.get("audio_pending_spinner", copy_pack.get("spinner_voice", "Generating voice..."))):
-                audio_b64, audio_error = generate_audio_with_provider(
-                    pending_audio_job.get("tts_provider", DEFAULT_TTS_PROVIDER),
-                    pending_audio_job.get("story_text", story_text),
-                    pending_audio_job.get("voice_id"),
-                )
-            clear_pending_story_audio()
-            if audio_b64:
-                update_audio(story["id"], audio_b64)
-                story["audio_base64"] = audio_b64
-                st.session_state.view_story = story
-                st.rerun()
-            else:
-                st.warning(
-                    copy_pack.get(
-                        "warning_audio_failed",
-                        "Narration was not generated. Please try again.",
-                    )
-                )
-                if audio_error:
-                    st.caption(
-                        f"{copy_pack.get('warning_audio_failed_reason', 'Technical reason')}: {audio_error}"
-                    )
 
         if not bg_music_ready:
             st.caption("Чтобы играла фоновая музыка, положи файл `bg_music.mp3` рядом с `app.py`.")
@@ -1887,6 +2064,7 @@ else:
             )
 
             st.caption(copy_pack.get("btn_create_hint", ""))
+            story_generation_in_progress = bool(st.session_state.get("story_generation_job"))
             if monthly_limit_reached:
                 st.warning(
                     copy_pack.get(
@@ -1901,80 +2079,23 @@ else:
                 type="primary",
                 use_container_width=True,
                 key="create_story_btn",
-                disabled=monthly_limit_reached,
+                disabled=monthly_limit_reached or story_generation_in_progress,
             ):
                 errors = validate_story_request(child_name, skills, copy_pack)
                 if errors:
                     for error in errors:
                         st.error(error)
                 else:
-                    try:
-                        with st.spinner(copy_pack.get("spinner_magic", "Creating...")):
-                            full_text = generate_story_text(
-                                child_name.strip(),
-                                st.session_state.sel_lang,
-                                skills,
-                                details.strip(),
-                                st.session_state.time_val,
-                            )
-
-                        if not full_text:
-                            st.error(copy_pack.get("error_gen_story", "Failed to generate story."))
-                        else:
-                            title, story_body = extract_story_parts(
-                                full_text,
-                                copy_pack.get("story_fallback", "Story"),
-                            )
-
-                            image_url = None
-                            clear_pending_story_audio()
-
-                            if use_img:
-                                with st.spinner(copy_pack.get("spinner_cover", "Generating image...")):
-                                    image_url, _, _ = prepare_story_media(
-                                        use_img=True,
-                                        use_audio=False,
-                                        tts_provider=tts_provider,
-                                        voice_id=voice_id,
-                                        title=title,
-                                        child_name=child_name.strip(),
-                                        selected_lang=st.session_state.sel_lang,
-                                        skills=skills,
-                                        details=details.strip(),
-                                        story_body=story_body,
-                                    )
-
-                            result = save_story(
-                                {
-                                    "user_email": st.session_state.user_email,
-                                    "child_name": child_name.strip(),
-                                    "title": title,
-                                    "story_text": story_body,
-                                    "image_url": image_url,
-                                }
-                            )
-
-                            if result and getattr(result, "data", None):
-                                current_story = result.data[0]
-                                story_id = current_story["id"]
-
-                                current_story["title"] = title
-                                current_story["story_text"] = story_body
-                                current_story["image_url"] = image_url
-
-                                if use_audio and voice_id:
-                                    queue_story_audio_generation(
-                                        story_id,
-                                        story_body,
-                                        voice_id,
-                                        tts_provider,
-                                    )
-
-                                st.session_state.view_story = current_story
-                                st.session_state.page_mode = "view"
-                                st.rerun()
-                            else:
-                                st.error(copy_pack.get("error_save_story", "Failed to save story."))
-
-                    except Exception as error:
-                        st.error(f'{copy_pack.get("error_prefix", "Error")}: {error}')
+                    start_story_generation_job(
+                        user_email=st.session_state.user_email,
+                        child_name=child_name.strip(),
+                        selected_lang=st.session_state.sel_lang,
+                        skills=skills,
+                        details=details.strip(),
+                        time_val=st.session_state.time_val,
+                        use_img=use_img,
+                        use_audio=use_audio,
+                        voice_id=voice_id,
+                        tts_provider=tts_provider,
+                    )
+                    st.rerun()
