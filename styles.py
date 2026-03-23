@@ -558,6 +558,31 @@ def apply_styles():
             transform: translateY(-1px);
         }
 
+        div.stLinkButton > a,
+        .stLinkButton a {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 50px !important;
+            border-radius: 18px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.01em !important;
+            text-decoration: none !important;
+            background: rgba(255, 250, 243, 0.96) !important;
+            color: var(--ink) !important;
+            border: 1px solid rgba(113, 82, 52, 0.14) !important;
+            box-shadow: 0 10px 22px rgba(120, 76, 36, 0.045) !important;
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
+        }
+
+        div.stLinkButton > a:hover,
+        .stLinkButton a:hover {
+            border-color: rgba(191, 122, 68, 0.32) !important;
+            transform: translateY(-1px) !important;
+            color: var(--ink) !important;
+            text-decoration: none !important;
+        }
+
         [data-testid="stSidebar"] div.stButton > button[kind="primary"] {
             background: linear-gradient(135deg, #d8874f 0%, #c26739 100%) !important;
             box-shadow: 0 16px 28px rgba(191, 122, 68, 0.16) !important;
@@ -573,6 +598,32 @@ def apply_styles():
         [data-testid="stSidebar"] div.stButton > button[kind="secondary"] p,
         [data-testid="stSidebar"] div.stButton > button[kind="secondary"] span,
         [data-testid="stSidebar"] div.stButton > button[kind="secondary"] div {
+            color: var(--ink) !important;
+        }
+
+        [data-testid="stSidebar"] div.stLinkButton > a,
+        [data-testid="stSidebar"] .stLinkButton a {
+            background: rgba(255, 250, 243, 0.96) !important;
+            color: var(--ink) !important;
+            border: 1px solid rgba(113, 82, 52, 0.14) !important;
+            box-shadow: 0 10px 22px rgba(120, 76, 36, 0.045) !important;
+        }
+
+        [data-testid="stSidebar"] div.stLinkButton > a *,
+        [data-testid="stSidebar"] .stLinkButton a *,
+        [data-testid="stSidebar"] div.stLinkButton > a span,
+        [data-testid="stSidebar"] .stLinkButton a span,
+        [data-testid="stSidebar"] div.stLinkButton > a p,
+        [data-testid="stSidebar"] .stLinkButton a p,
+        [data-testid="stSidebar"] div.stLinkButton > a div,
+        [data-testid="stSidebar"] .stLinkButton a div {
+            color: var(--ink) !important;
+            opacity: 1 !important;
+        }
+
+        [data-testid="stSidebar"] div.stLinkButton > a:hover,
+        [data-testid="stSidebar"] .stLinkButton a:hover {
+            border-color: rgba(191, 122, 68, 0.32) !important;
             color: var(--ink) !important;
         }
 
