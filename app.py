@@ -151,6 +151,7 @@ def render_intro_overlay(copy_pack):
                         width: 100vw;
                         height: 100vh;
                         object-fit: cover;
+                        object-position: center center;
                         background: #000;
                     }}
                     #${{overlayId}} .nomnom-intro-shade {{
@@ -164,9 +165,11 @@ def render_intro_overlay(copy_pack):
                     #${{overlayId}} .nomnom-intro-brand {{
                         position: absolute;
                         left: 50%;
-                        bottom: 42px;
+                        bottom: max(28px, env(safe-area-inset-bottom));
                         transform: translateX(-50%);
                         width: min(92vw, 760px);
+                        padding: 0 18px;
+                        box-sizing: border-box;
                         text-align: center;
                         color: #fff7ef;
                         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
@@ -175,13 +178,15 @@ def render_intro_overlay(copy_pack):
                     #${{overlayId}} .nomnom-intro-title {{
                         font-size: clamp(2rem, 5vw, 4.4rem);
                         font-weight: 800;
-                        line-height: 1.02;
+                        line-height: 1.08;
                         margin-bottom: 10px;
+                        text-wrap: balance;
                     }}
                     #${{overlayId}} .nomnom-intro-copy {{
                         font-size: clamp(1rem, 2vw, 1.25rem);
                         line-height: 1.55;
                         opacity: 0.94;
+                        text-wrap: balance;
                     }}
                     #${{overlayId}} .nomnom-intro-skip,
                     #${{overlayId}} .nomnom-intro-hint {{
@@ -193,7 +198,7 @@ def render_intro_overlay(copy_pack):
                         box-shadow: 0 12px 26px rgba(0,0,0,0.18);
                     }}
                     #${{overlayId}} .nomnom-intro-skip {{
-                        top: 18px;
+                        top: max(18px, env(safe-area-inset-top));
                         right: 18px;
                         border: none;
                         background: rgba(255, 248, 240, 0.9);
@@ -209,6 +214,40 @@ def render_intro_overlay(copy_pack):
                         border: 1px solid rgba(255,255,255,0.18);
                         display: none;
                         pointer-events: none;
+                    }}
+                    @media (max-width: 768px) {{
+                        #${{overlayId}} .nomnom-intro-brand {{
+                            width: calc(100vw - 28px);
+                            bottom: max(20px, env(safe-area-inset-bottom));
+                            padding: 18px 18px calc(16px + env(safe-area-inset-bottom)) 18px;
+                            border-radius: 24px;
+                            background: linear-gradient(180deg, rgba(13, 8, 6, 0.14), rgba(13, 8, 6, 0.38));
+                            backdrop-filter: blur(10px);
+                        }}
+                        #${{overlayId}} .nomnom-intro-title {{
+                            font-size: clamp(1.85rem, 10vw, 3rem);
+                            line-height: 1.1;
+                            margin-bottom: 8px;
+                        }}
+                        #${{overlayId}} .nomnom-intro-copy {{
+                            font-size: 0.92rem;
+                            line-height: 1.45;
+                            max-width: 100%;
+                        }}
+                        #${{overlayId}} .nomnom-intro-skip {{
+                            top: max(12px, env(safe-area-inset-top));
+                            right: 12px;
+                            padding: 10px 14px;
+                            font-size: 0.92rem;
+                        }}
+                        #${{overlayId}} .nomnom-intro-hint {{
+                            width: calc(100vw - 32px);
+                            bottom: calc(110px + env(safe-area-inset-bottom));
+                            padding: 10px 14px;
+                            font-size: 0.9rem;
+                            text-align: center;
+                            white-space: normal;
+                        }}
                     }}
                 `;
                 docRef.head.appendChild(style);
