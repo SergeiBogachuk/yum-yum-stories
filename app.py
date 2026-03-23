@@ -900,7 +900,8 @@ lang_dict = {
         "password_label": "Пароль",
         "child_name": "Имя ребёнка",
         "child_placeholder": "Например: Даша",
-        "default_child_name": "Даша",
+        "default_child_name": "",
+        "summary_fallback_child_name": "вашего ребенка",
         "skills_label": "Какие навыки поддержим этой сказкой?",
         "skills_help": "Лучше выбрать 1-2 темы, чтобы история получилась цельной и мягкой.",
         "duration": "Длительность",
@@ -1045,7 +1046,8 @@ lang_dict = {
         "password_label": "Password",
         "child_name": "Child's name",
         "child_placeholder": "For example: Emma",
-        "default_child_name": "Emma",
+        "default_child_name": "",
+        "summary_fallback_child_name": "your child",
         "skills_label": "Which skills should this story gently support?",
         "skills_help": "Choosing 1-2 themes usually creates the most focused and soothing story.",
         "duration": "Duration",
@@ -1190,7 +1192,8 @@ lang_dict = {
         "password_label": "Parolă",
         "child_name": "Numele copilului",
         "child_placeholder": "De exemplu: Ana",
-        "default_child_name": "Ana",
+        "default_child_name": "",
+        "summary_fallback_child_name": "copilul tău",
         "skills_label": "Ce dorim să susținem blând prin această poveste?",
         "skills_help": "Cel mai bine este să alegi 1-2 teme pentru o poveste coerentă și liniștitoare.",
         "duration": "Durată",
@@ -1324,7 +1327,7 @@ if "time_val" not in st.session_state:
 if "view_story" not in st.session_state:
     st.session_state.view_story = None
 if "sel_lang" not in st.session_state:
-    st.session_state.sel_lang = "Русский"
+    st.session_state.sel_lang = "English"
 if "page_mode" not in st.session_state:
     st.session_state.page_mode = "form"
 if "show_intro" not in st.session_state:
@@ -1360,7 +1363,7 @@ if "auth_refresh_token" not in st.session_state:
 
 
 lang_options = list(lang_dict.keys())
-active_copy_pack = lang_dict.get(st.session_state.get("sel_lang", "Русский"), lang_dict["Русский"])
+active_copy_pack = lang_dict.get(st.session_state.get("sel_lang", "English"), lang_dict["English"])
 
 if st.session_state.show_intro and render_intro_overlay(active_copy_pack):
     st.session_state.show_intro = False
@@ -1369,8 +1372,8 @@ if st.session_state.show_intro and render_intro_overlay(active_copy_pack):
 if not st.session_state.get("logged_in", False):
     stop_bg_music()
 
-    current_lang = st.session_state.get("sel_lang", "Русский")
-    copy_pack = lang_dict.get(current_lang, lang_dict["Русский"])
+    current_lang = st.session_state.get("sel_lang", "English")
+    copy_pack = lang_dict.get(current_lang, lang_dict["English"])
 
     _, center, _ = st.columns([1, 2, 1])
     with center:
@@ -1424,7 +1427,7 @@ if not st.session_state.get("logged_in", False):
                 st.error(copy_pack.get("login_error", "Login failed"))
 
 else:
-    copy_pack = lang_dict.get(st.session_state.sel_lang, lang_dict["Русский"])
+    copy_pack = lang_dict.get(st.session_state.sel_lang, lang_dict["English"])
     stories = get_user_stories(st.session_state.user_email)
     payment_links = get_payment_links()
     monthly_story_usage = get_monthly_story_usage(stories)
@@ -1704,7 +1707,7 @@ else:
             )
             child_name = st.text_input(
                 copy_pack.get("child_name", "Child's name"),
-                value=copy_pack.get("default_child_name", ""),
+                value="",
                 placeholder=copy_pack.get("child_placeholder", ""),
             )
 
@@ -1819,7 +1822,7 @@ else:
 
             selected_skills = ", ".join(skills) if skills else copy_pack.get("summary_default_skills", "")
             story_summary = copy_pack.get("summary_template", "{skills}").format(
-                child_name=child_name.strip() or copy_pack.get("default_child_name", ""),
+                child_name=child_name.strip() or copy_pack.get("summary_fallback_child_name", "your child"),
                 time_val=st.session_state.time_val,
                 skills=selected_skills,
             )
