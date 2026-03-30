@@ -115,6 +115,73 @@ def get_user_stories(email):
         return EmptyResult()
 
 
+def get_child_profiles(email):
+    try:
+        return (
+            get_supabase()
+            .table("child_profiles")
+            .select("*")
+            .eq("user_email", email.strip())
+            .order("child_name")
+            .execute()
+        )
+    except Exception:
+        return EmptyResult()
+
+
+def save_child_profile(profile_data):
+    normalized_email = (profile_data.get("user_email") or "").strip()
+    child_name = (profile_data.get("child_name") or "").strip()
+
+    if not normalized_email or not child_name:
+        return None
+
+    payload = {
+        "user_email": normalized_email,
+        "child_name": child_name,
+        "age_band": profile_data.get("age_band") or None,
+        "story_goal": profile_data.get("story_goal") or None,
+        "favorite_hero": (profile_data.get("favorite_hero") or "").strip() or None,
+    }
+
+    try:
+        existing = (
+            get_supabase()
+            .table("child_profiles")
+            .select("id")
+            .eq("user_email", normalized_email)
+            .eq("child_name", child_name)
+            .limit(1)
+            .execute()
+        )
+
+        if getattr(existing, "data", None):
+            child_profile_id = existing.data[0]["id"]
+            result = (
+                get_supabase()
+                .table("child_profiles")
+                .update(payload)
+                .eq("id", child_profile_id)
+                .execute()
+            )
+        else:
+            result = get_supabase().table("child_profiles").insert(payload).execute()
+
+        if getattr(result, "data", None):
+            return result.data[0]
+        return None
+    except Exception:
+        return None
+
+
+def delete_child_profile(profile_id):
+    try:
+        get_supabase().table("child_profiles").delete().eq("id", profile_id).execute()
+        return True
+    except Exception:
+        return False
+
+
 def save_story(story_data):
     payload = {
         "user_email": story_data.get("user_email"),
