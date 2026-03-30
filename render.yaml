@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: yum-yum-stories
+    runtime: python
+    plan: starter
+    autoDeploy: true
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.10
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.address 0.0.0.0 --server.port $PORT --server.headless true
+
