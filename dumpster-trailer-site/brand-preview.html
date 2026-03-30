@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IronDrop Haul Co. Brand Preview</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1620;
+      --panel: rgba(18, 31, 42, 0.92);
+      --line: rgba(255, 255, 255, 0.1);
+      --text: #edf5f7;
+      --text-soft: #b6c5cb;
+      --accent: #ff8428;
+      --accent-2: #ffb457;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(255, 132, 40, 0.1), transparent 22%),
+        linear-gradient(180deg, #09131c 0%, #0d1821 100%);
+    }
+
+    .shell {
+      width: min(calc(100% - 2rem), 1180px);
+      margin: 0 auto;
+      padding: 2.2rem 0 3rem;
+    }
+
+    .intro {
+      margin-bottom: 1.2rem;
+      padding: 1.3rem 1.4rem;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+    }
+
+    .eyebrow {
+      margin: 0 0 0.65rem;
+      color: #ffd698;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0 0 0.7rem;
+      font-size: clamp(2.4rem, 6vw, 4.2rem);
+      line-height: 0.95;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    p {
+      margin: 0;
+      color: var(--text-soft);
+      line-height: 1.7;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 1rem;
+    }
+
+    .card {
+      padding: 1.2rem;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: var(--panel);
+    }
+
+    .stage {
+      display: grid;
+      place-items: center;
+      min-height: 250px;
+      margin-top: 0.85rem;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .stage-dark {
+      background:
+        linear-gradient(180deg, #101b24 0%, #0b141b 100%);
+    }
+
+    .stage-light {
+      background:
+        linear-gradient(180deg, #f5f6f2 0%, #e8ecee 100%);
+    }
+
+    .stage img {
+      width: min(92%, 720px);
+      height: auto;
+      display: block;
+    }
+
+    .meta {
+      display: grid;
+      gap: 0.85rem;
+    }
+
+    .meta-block {
+      padding: 1rem;
+      border-radius: 22px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .meta-block strong {
+      display: block;
+      margin-bottom: 0.45rem;
+      color: #ffd698;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.78rem;
+    }
+
+    .badge-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 220px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background:
+        radial-gradient(circle at top left, rgba(255, 132, 40, 0.14), transparent 30%),
+        rgba(255, 255, 255, 0.03);
+    }
+
+    .badge-wrap img {
+      width: min(68%, 240px);
+      height: auto;
+      display: block;
+    }
+
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">Brand Direction</p>
+      <h1>IronDrop Haul Co.</h1>
+      <p>
+        The name keeps the strong part you already liked, but the service line sounds more American and more
+        like a real truck-side brand. The icon is built around a dump bed motion, so it feels connected to your
+        actual trailer instead of looking generic.
+      </p>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <p class="eyebrow">Dark Site Version</p>
+        <div class="stage stage-dark">
+          <img src="./assets/logo-irondrop-site.svg" alt="IronDrop Haul Co. dark logo">
+        </div>
+
+        <p class="eyebrow" style="margin-top: 1rem;">Light Wrap Version</p>
+        <div class="stage stage-light">
+          <img src="./assets/logo-irondrop-wrap.svg" alt="IronDrop Haul Co. light logo">
+        </div>
+      </article>
+
+      <aside class="meta">
+        <div class="meta-block">
+          <strong>Recommended Name</strong>
+          <p>`IronDrop Haul Co.` feels tighter than `IronDrop Dumpster Trailer Rental`, and it leaves room for
+          junk loading, trailer drop-off, and future hauling services.</p>
+        </div>
+
+        <div class="meta-block">
+          <strong>Service Line</strong>
+          <p>`Dump Trailer + Junk Hauling` tells people what you actually do in one quick read.</p>
+        </div>
+
+        <div class="meta-block">
+          <strong>Badge Mark</strong>
+          <div class="badge-wrap">
+            <img src="./assets/logo-irondrop-badge.svg" alt="IronDrop Haul Co. badge">
+          </div>
+        </div>
+
+        <div class="meta-block">
+          <strong>Best Uses</strong>
+          <p>Use the horizontal logo on the website, invoices, and the side of a truck or van. Use the badge for
+          social media, decals, shirts, or a trailer door.</p>
+        </div>
+      </aside>
+    </section>
+  </main>
+</body>
+</html>

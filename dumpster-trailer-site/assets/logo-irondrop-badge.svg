@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="360" viewBox="0 0 360 360" fill="none">
+  <defs>
+    <linearGradient id="badgeGradient" x1="56" y1="36" x2="236" y2="214" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFB457"/>
+      <stop offset="1" stop-color="#FF7B21"/>
+    </linearGradient>
+  </defs>
+  <rect x="28" y="28" width="304" height="304" rx="48" fill="#0D1720"/>
+  <path
+    d="M74 112C74 92.1177 90.1177 76 110 76H162.316C177.335 76 191.737 81.9711 202.359 92.603L223.043 113.299C233.172 123.434 238.857 137.18 238.857 151.507V208C238.857 227.882 222.739 244 202.857 244H110C90.1177 244 74 227.882 74 208V112Z"
+    fill="url(#badgeGradient)"
+  />
+  <rect x="106" y="110" width="28" height="92" rx="14" fill="#09131C"/>
+  <path
+    d="M136 208H113V228H149.755C163.886 228 177.239 221.483 186.063 210.333L220 167.449V134H210.931C201.969 134 193.518 138.201 188.066 145.358L147.482 198.648C144.729 202.263 140.45 204.501 136 204.501V208Z"
+    fill="#09131C"
+  />
+  <rect x="106" y="204" width="72" height="18" rx="9" fill="#09131C"/>
+  <text
+    x="180"
+    y="286"
+    fill="#EDF5F7"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="38"
+    font-weight="700"
+    letter-spacing="3"
+    text-anchor="middle"
+  >
+    IRONDROP
+  </text>
+  <text
+    x="180"
+    y="317"
+    fill="#FFD698"
+    font-family="Arial, Helvetica, sans-serif"
+    font-size="18"
+    font-weight="700"
+    letter-spacing="3.2"
+    text-anchor="middle"
+  >
+    HAUL CO.
+  </text>
+</svg>
