@@ -1,51 +1,71 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="860" height="220" viewBox="0 0 860 220" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" width="1120" height="250" viewBox="0 0 1120 250" fill="none">
   <defs>
-    <linearGradient id="markGradient" x1="34" y1="24" x2="198" y2="188" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#FFB457"/>
-      <stop offset="1" stop-color="#FF7B21"/>
+    <linearGradient id="accentBar" x1="0" y1="0" x2="250" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFAA3D"/>
+      <stop offset="1" stop-color="#FF6D1F"/>
     </linearGradient>
   </defs>
-  <path
-    d="M42 50C42 35.641 53.641 24 68 24H125.41C136.192 24 146.525 28.3136 154.096 35.9851L177.686 59.8845C185.099 67.3944 189.25 77.5211 189.25 88.0738V152C189.25 166.359 177.609 178 163.25 178H68C53.641 178 42 166.359 42 152V50Z"
-    fill="url(#markGradient)"
-  />
-  <rect x="67.5" y="52" width="24" height="88" rx="12" fill="#09131C"/>
-  <path
-    d="M93.5 147H74V164H106.205C117.819 164 128.786 158.687 136.001 149.584L170 106.694V76H162.75C155.432 76 148.53 79.3972 144.069 85.1961L103.441 138.012C101.065 141.1 97.3881 143 93.5 143V147Z"
-    fill="#09131C"
-  />
-  <rect x="67.5" y="144" width="63" height="17" rx="8.5" fill="#09131C"/>
-  <text
-    x="231"
-    y="92"
-    fill="#EDF5F7"
-    font-family="Arial, Helvetica, sans-serif"
-    font-size="72"
-    font-weight="700"
-    letter-spacing="4"
-  >
-    IRONDROP
-  </text>
-  <text
-    x="233"
-    y="137"
-    fill="#FFD698"
-    font-family="Arial, Helvetica, sans-serif"
-    font-size="30"
-    font-weight="700"
-    letter-spacing="6"
-  >
-    HAUL CO.
-  </text>
-  <text
-    x="233"
-    y="174"
-    fill="#9AB0BA"
-    font-family="Arial, Helvetica, sans-serif"
-    font-size="22"
-    font-weight="700"
-    letter-spacing="2.8"
-  >
-    DUMP TRAILER + JUNK HAULING
-  </text>
+  <g transform="translate(20 18)">
+    <polygon points="72,70 118,24 154,70 120,88" fill="#F8FBFD"/>
+    <polygon points="72,70 120,88 92,132 48,118" fill="#DCE4EA"/>
+    <polygon points="118,24 180,42 165,90 154,70" fill="#EEF3F7"/>
+    <polygon points="154,70 165,90 124,112 120,88" fill="#C4CED7"/>
+    <polygon points="165,90 216,118 193,144 144,132 124,112" fill="#F8FBFD"/>
+    <polygon points="144,132 193,144 176,176 132,184 104,162" fill="#D4DDE4"/>
+    <polygon points="92,132 124,112 144,132 104,162 70,152" fill="#A6B2BC"/>
+    <polygon points="48,118 92,132 70,152 40,182 30,140" fill="#EEF3F7"/>
+    <polygon points="40,182 70,152 104,162 132,184 118,210 72,214" fill="#BEC8D0"/>
+    <polygon points="118,210 148,212 176,176 168,218 128,232" fill="#F8FBFD"/>
+    <polygon points="168,218 190,206 210,162 176,176" fill="#8E99A3"/>
+    <polygon points="170,56 208,76 214,102 184,96 165,90" fill="#A9B4BD"/>
+    <polygon points="184,96 214,102 224,120 216,118 193,144 176,132" fill="#FFFFFF"/>
+    <polygon points="170,56 220,40 238,70 208,76" fill="#FFFFFF"/>
+    <polygon points="220,40 248,50 236,74 238,70" fill="#DCE4EA"/>
+    <polygon points="214,102 240,98 252,116 224,120" fill="#8A949E"/>
+    <polygon points="190,110 214,120 198,126 176,122" fill="#11161B"/>
+    <polygon points="210,132 236,134 226,148 202,150" fill="#11161B"/>
+    <polygon points="164,184 190,206 210,162 188,166" fill="#FFFFFF"/>
+    <polygon points="58,44 92,26 88,56" fill="url(#accentBar)"/>
+  </g>
+
+  <g transform="translate(305 24)">
+    <g transform="skewX(-12)">
+      <text
+        x="0"
+        y="88"
+        fill="#F8FBFD"
+        font-family="Arial Black, Impact, Arial, sans-serif"
+        font-size="102"
+        font-weight="900"
+        letter-spacing="1.5"
+      >
+        IRONDROP
+      </text>
+      <text
+        x="2"
+        y="160"
+        fill="#D9E3EA"
+        font-family="Arial Black, Impact, Arial, sans-serif"
+        font-size="62"
+        font-weight="900"
+        letter-spacing="2"
+      >
+        CONTAINERS
+      </text>
+    </g>
+
+    <rect x="8" y="176" width="402" height="15" rx="7.5" fill="url(#accentBar)"/>
+
+    <text
+      x="0"
+      y="220"
+      fill="#9EB0BA"
+      font-family="Arial, Helvetica, sans-serif"
+      font-size="24"
+      font-weight="700"
+      letter-spacing="4"
+    >
+      DUMP TRAILER + JUNK HAULING
+    </text>
+  </g>
 </svg>
