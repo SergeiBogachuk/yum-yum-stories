@@ -1,4 +1,4 @@
-# IronDrop Dumpster Trailers
+# Bulldog Containers
 
 Standalone static landing page for a US dumpster trailer / junk removal business.
 
@@ -23,7 +23,7 @@ Then open `http://localhost:8000`.
 ## Customize before launch
 
 - Replace phone number if needed: `+1 (956) 315-9677`
-- Replace `hello@irondropdumpsters.com`
+- Replace `dispatch@bulldogcontainers.com`
 - Update service area copy
 - Update pricing to match your market
 - Replace the illustration with a clean real trailer photo when available

@@ -4,10 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#0d1720">
-  <title>IronDrop | Dump Trailer & Junk Hauling</title>
+  <title>Bulldog Containers | 10 & 15 Yard Trailer Rentals</title>
   <meta
     name="description"
-    content="Owner-operated dump trailer and junk hauling with simple pricing, a quick weight-based estimator, and direct local scheduling."
+    content="10 and 15 yard self-load trailer rentals with premium multi-day pricing, fast load-and-haul availability, and direct local scheduling."
   >
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,17 +15,23 @@
     href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Teko:wght@400;500;600;700&display=swap"
     rel="stylesheet"
   >
-  <link rel="stylesheet" href="./styles.css">
+  <link rel="stylesheet" href="./styles.css?v=20260407b">
 </head>
 <body>
   <div class="site-shell">
     <header class="topbar">
-      <a class="brand" href="#quote" aria-label="IronDrop">
-        <img class="brand-logo" src="./assets/logo-irondrop-site.svg" alt="IronDrop">
+      <a class="brand" href="#quote" aria-label="Bulldog Containers">
+        <span class="brand-copy">
+          <strong>Bulldog</strong>
+          <span>Containers</span>
+          <small>Dumpster Rental &amp; Waste Removal</small>
+        </span>
       </a>
 
       <div class="topbar-actions">
         <a href="#pricing">Pricing</a>
+        <a href="#booking">Booking</a>
+        <a href="#service">Service</a>
         <a href="#faq">FAQ</a>
         <a class="nav-cta" href="tel:+19563159677">Call Dispatch</a>
       </div>
@@ -34,55 +40,64 @@
     <main class="main-shell">
       <section class="quote-layout" id="quote">
         <div class="hero-copy">
+          <div class="hero-brand-banner" aria-hidden="true">
+            <img
+              class="hero-brand-image"
+              src="./assets/bulldog-hero.png?v=20260407b"
+              alt="Bulldog Containers logo"
+            >
+          </div>
           <p class="eyebrow">Ready To Book</p>
-          <h1>We come, load it, and haul it away.</h1>
+          <h1>10 &amp; 15 yard self-load rentals, plus fast load &amp; haul.</h1>
           <p class="hero-text">
-            IronDrop is built around a black dump trailer like this one and a simple high-value offer:
-            most customers book owner loading service, and in select cases we can also do trailer drop-off only.
-            Choose the debris type, estimate the weight, and get a fast ballpark quote.
+            Bulldog Containers now leads with 10 and 15 yard self-load trailer rentals. Multi-day drop-off stays
+            available at a premium rate because the trailer is tied up on-site for several days. If the job needs
+            a faster turn, quick load &amp; haul is still available too.
           </p>
 
           <div class="contact-row">
             <a class="contact-chip" href="tel:+19563159677">Call: (956) 315-9677</a>
             <a class="contact-chip" href="sms:+19563159677">Text Photos</a>
-            <a class="contact-chip" href="mailto:hello@irondropdumpsters.com">Email Quote</a>
+            <a class="contact-chip" href="mailto:dispatch@bulldogcontainers.com">Email Quote</a>
             <span class="contact-chip contact-chip-muted">Zelle preferred</span>
           </div>
 
           <div class="info-grid">
             <article class="info-pill">
-              <span>Most booked</span>
-              <strong>We load it</strong>
-              <p>Higher price, but easier for the customer</p>
+              <span>Main offer</span>
+              <strong>10 &amp; 15 yd self-load</strong>
+              <p>Trailer drop-off with premium multi-day pricing</p>
             </article>
             <article class="info-pill">
               <span>Starting price</span>
-              <strong>From $624</strong>
-              <p>Trailer + owner loading service</p>
+              <strong>From $849</strong>
+              <p>10 yard self-load rental, up to 3 days</p>
             </article>
             <article class="info-pill">
-              <span>Drop-off only</span>
-              <strong>Limited option</strong>
-              <p>Available for some jobs when self-load makes sense</p>
+              <span>Fast-turn option</span>
+              <strong>Load &amp; haul</strong>
+              <p>Available when the job needs faster pickup and turnaround</p>
             </article>
           </div>
 
           <div class="policy-card">
             <strong>How pricing works</strong>
             <p>
-              Most jobs should be quoted as owner loading service because that is where the convenience and
-              margin are. Drop-off only stays available for the right customer, but the main offer is that
-              you show up, load the debris, and haul it out. Weight still matters on both options.
+              The site now leads with self-load. 10 and 15 yard drop-off rentals are priced near the top of the
+              market because leaving a trailer on-site for several days has to pay for trailer time, delivery,
+              pickup, and disposal risk. Quick load &amp; haul stays available when the customer wants faster service.
             </p>
           </div>
 
           <div class="payment-card">
             <strong>Booking & payment</strong>
             <ul>
-              <li>`We load it` jobs can be booked with a small deposit, for example `$99`.</li>
-              <li>`Drop-off only` jobs can require a larger deposit because the trailer stays on-site.</li>
+              <li>`10 yd` and `15 yd` self-load rentals can be booked with a larger deposit because the trailer stays on-site.</li>
+              <li>Standard self-load pricing can include up to `3 days`, then extra day fees can apply.</li>
+              <li>`Quick load & haul` jobs can keep a smaller deposit because the trailer turns faster.</li>
               <li>Zelle can be the preferred payment method for deposits and balances.</li>
               <li>Card or invoice payments can stay available as a backup, and processor fees may apply.</li>
+              <li>Any overweight or disposal overage is billed after the actual dump scale weight is confirmed.</li>
               <li>Sales tax can be added where required by law.</li>
             </ul>
           </div>
@@ -94,8 +109,16 @@
               <label>
                 Service type
                 <select name="service_type" id="service-type">
-                  <option value="loading" selected>We load it for you</option>
-                  <option value="self">Trailer drop-off only</option>
+                  <option value="self" selected>Self-load rental</option>
+                  <option value="loading">Quick load &amp; haul</option>
+                </select>
+              </label>
+
+              <label>
+                Trailer size
+                <select name="trailer_size" id="trailer-size">
+                  <option value="ten" selected>10 yard trailer</option>
+                  <option value="fifteen">15 yard trailer</option>
                 </select>
               </label>
 
@@ -164,16 +187,36 @@
             <div class="estimate-card" id="estimate-card">
               <div class="estimate-head">
                 <span>Estimated total</span>
-                <strong id="estimate-total">$449</strong>
+                <strong id="estimate-total">$849</strong>
               </div>
               <div class="estimate-meta">
                 <span id="estimate-included">Includes up to 2.0 tons</span>
-                <span id="estimate-overage">$85 per extra ton</span>
+                <span id="estimate-overage">$120 per extra ton</span>
+                <span id="estimate-window">Includes up to 3 days</span>
               </div>
               <p id="estimate-note">
-                Mixed household junk estimate shown. Final total depends on actual landfill scale weight,
-                prohibited items, and the final debris mix.
+                10 yard self-load estimate shown. Final total depends on actual landfill scale weight,
+                extra days, prohibited items, and the final debris mix.
               </p>
+            </div>
+
+            <div class="payment-quick-card">
+              <p class="payment-quick-label">Payment flow</p>
+              <h3>Book with a deposit, then settle after disposal.</h3>
+              <div class="payment-summary">
+                <span>Suggested booking deposit</span>
+                <strong id="payment-deposit">$250</strong>
+              </div>
+              <p id="payment-flow-note">
+                Self-load rentals use a larger deposit because the trailer stays on-site until pickup. Extra rental
+                days are billed after the included window. Remaining balance and any overweight charges are confirmed
+                after service and dump scale weight.
+              </p>
+            </div>
+
+            <div class="action-row payment-action-row">
+              <button class="button button-primary" type="button" id="book-deposit">Book with $250 Deposit</button>
+              <button class="button button-secondary" type="button" id="pay-balance">Pay Remaining Balance</button>
             </div>
 
             <div class="action-row">
@@ -182,8 +225,8 @@
             </div>
 
             <p class="form-note" id="form-note">
-              The calculator is a fast ballpark tool. Exact totals can change if the actual scale weight or
-              debris type is different from the estimate.
+              The calculator is a fast ballpark tool. Self-load rentals are quoted as premium multi-day service,
+              and final totals can change if the actual scale weight, rental days, or debris type is different.
             </p>
           </form>
         </div>
@@ -191,59 +234,61 @@
 
       <section class="quick-strip" id="pricing">
         <article class="strip-card">
-          <p class="strip-label">Primary Offer</p>
-          <h2>Owner loading service first</h2>
+          <p class="strip-label">10 YD Self-Load</p>
+          <h2>$849 for a premium multi-day rental</h2>
           <ul>
-            <li>You show up and load the debris</li>
-            <li>Best upsell for convenience and speed</li>
-            <li>Stronger margin than trailer drop-off only</li>
-            <li>Good for cleanouts and move-out jobs</li>
+            <li>Up to 3 days included on the driveway</li>
+            <li>Good fit for roofing, garage junk, and smaller remodels</li>
+            <li>Includes up to 2.0 tons for mixed light debris</li>
+            <li>Overweight above the included limit is $120 per ton</li>
+            <li>$45 per extra rental day after the included window</li>
           </ul>
         </article>
 
         <article class="strip-card">
-          <p class="strip-label">Drop-Off Only</p>
-          <h2>Secondary lower-price option</h2>
+          <p class="strip-label">15 YD Self-Load</p>
+          <h2>$949 for the larger premium rental</h2>
           <ul>
-            <li>Leave the trailer and let them load it</li>
-            <li>Good for slower multi-day jobs</li>
-            <li>Lower price because labor is not included</li>
-            <li>Still subject to weight and disposal</li>
+            <li>Up to 3 days included on-site</li>
+            <li>Best for fuller home cleanouts and bulkier mixed loads</li>
+            <li>Usually includes up to 2.0 tons, or 1.5 tons for heavier material</li>
+            <li>Overweight above the included limit is $120 per ton</li>
+            <li>$55 per extra rental day after the included window</li>
           </ul>
         </article>
 
         <article class="strip-card">
-          <p class="strip-label">What Changes Price</p>
-          <h2>What pushes the quote up</h2>
+          <p class="strip-label">Quick Load &amp; Haul</p>
+          <h2>Faster-turn option from $649</h2>
           <ul>
-            <li>Extra weight above the included limit</li>
-            <li>Stairs or difficult access</li>
-            <li>Heavy hand loading or long carries</li>
-            <li>Dense debris disposal adjustments</li>
+            <li>Use when you want the trailer in and out faster</li>
+            <li>10 yard from $649 and 15 yard from $749</li>
+            <li>Access, stairs, and carry distance still matter</li>
+            <li>Good option when you do not want a trailer left for days</li>
           </ul>
         </article>
       </section>
 
       <section class="quick-strip payment-strip">
         <article class="strip-card">
-          <p class="strip-label">Preferred Payment</p>
-          <h2>Zelle keeps it simple</h2>
+          <p class="strip-label">Why Self-Load Prices High</p>
+          <h2>Multi-day trailer time has to pay.</h2>
           <ul>
-            <li>Fast deposit confirmation</li>
-            <li>No card terminal needed</li>
-            <li>Good for local repeat customers</li>
-            <li>Ask dispatch for the payment details after approval</li>
+            <li>The trailer stays tied up on one job for several days</li>
+            <li>Delivery, pickup, and disposal risk are still on your side</li>
+            <li>Premium pricing keeps the drop-off option worth taking</li>
+            <li>Fast-turn load &amp; haul can stay cheaper than a long rental</li>
           </ul>
         </article>
 
         <article class="strip-card">
-          <p class="strip-label">Official Option</p>
-          <h2>Invoice or card available</h2>
+          <p class="strip-label">What Changes The Total</p>
+          <h2>Weight, rental days, and difficult material</h2>
           <ul>
-            <li>Good for customers who want a formal payment link</li>
-            <li>Useful for property managers and business clients</li>
-            <li>Processor fees can be added if you choose</li>
-            <li>Better paper trail for commercial jobs</li>
+            <li>Extra weight above the included tonnage</li>
+            <li>Extra days after the included rental window</li>
+            <li>Roofing and dense debris hit limits faster</li>
+            <li>Stairs and long carries matter on load &amp; haul jobs</li>
           </ul>
         </article>
 
@@ -252,9 +297,63 @@
           <h2>What to say publicly</h2>
           <ul>
             <li>Zelle preferred</li>
-            <li>Card or invoice available on request</li>
             <li>Deposit required to reserve scheduling</li>
+            <li>Remaining balance due after service</li>
+            <li>Overweight billed after disposal if needed</li>
             <li>Taxes added where required by law</li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="booking-shell" id="booking">
+        <div class="booking-heading">
+          <p class="eyebrow">Booking Calendar</p>
+          <h2>See what is open before you send the deposit.</h2>
+          <p class="booking-text">
+            This is a fast visual booking board for the next few days. Text dispatch to confirm the latest slot
+            before sending payment, especially if you need a specific date.
+          </p>
+        </div>
+
+        <div class="booking-grid" id="booking-grid"></div>
+        <p class="booking-legend">
+          <span class="status-pill status-open">Open</span>
+          <span class="status-pill status-held">Hold</span>
+          <span class="status-pill status-booked">Booked</span>
+        </p>
+      </section>
+
+      <section class="quick-strip ops-strip" id="service">
+        <article class="strip-card">
+          <p class="strip-label">Booking Steps</p>
+          <h2>Text photos. Get a quote. Lock the spot.</h2>
+          <ul>
+            <li>Use the calculator for a fast ballpark number</li>
+            <li>Text photos if the load looks heavy or mixed</li>
+            <li>Dispatch confirms the best service type and deposit</li>
+            <li>Final balance is confirmed after service and dump weight</li>
+          </ul>
+        </article>
+
+        <article class="strip-card">
+          <p class="strip-label">Service Area</p>
+          <h2>Local owner-operated scheduling</h2>
+          <ul>
+            <li>Best fit for homes, move-outs, cleanouts, roofing, and remodel debris</li>
+            <li>Put the project address in the form so dispatch can route the job fast</li>
+            <li>Same-day or this-week scheduling can be offered when the route allows</li>
+            <li>If the job is outside the normal route, text first and dispatch can confirm</li>
+          </ul>
+        </article>
+
+        <article class="strip-card">
+          <p class="strip-label">Load Rules</p>
+          <h2>What to mention before loading starts</h2>
+          <ul>
+            <li>Household junk, remodel debris, brush, and furniture are normal fits</li>
+            <li>Shingles, dirt, concrete, brick, and tile need tighter weight planning</li>
+            <li>Tires, mattresses, appliances, or special disposal items should be disclosed first</li>
+            <li>Hazardous materials and unknown chemicals should be approved before booking</li>
           </ul>
         </article>
       </section>
@@ -267,6 +366,30 @@
 
         <div class="faq-list">
           <details open>
+            <summary>What sizes are you running right now?</summary>
+            <p>
+              Right now the site is built around 10 yard and 15 yard trailer rentals. That keeps the offer simple,
+              covers the most common cleanup jobs, and makes booking easier.
+            </p>
+          </details>
+
+          <details>
+            <summary>What is the main service you offer?</summary>
+            <p>
+              The main site pitch is now self-load rental in 10 yard and 15 yard sizes. Quick load and haul is
+              still available when the customer wants faster turnaround instead of keeping the trailer for days.
+            </p>
+          </details>
+
+          <details>
+            <summary>Why is self-load rental priced so high?</summary>
+            <p>
+              Because a multi-day drop-off ties the trailer up on one job. The rate has to cover trailer time,
+              delivery, pickup, and the disposal risk even before the final dump weight is known.
+            </p>
+          </details>
+
+          <details>
             <summary>What if I do not know the exact weight?</summary>
             <p>
               That is normal. Use the calculator as a quick estimate, then text a few photos for a tighter quote.
@@ -275,19 +398,19 @@
           </details>
 
           <details>
-            <summary>What is the main service you offer?</summary>
+            <summary>How many days are included on self-load rental?</summary>
             <p>
-              The main service is owner loading with the dump trailer. In other words, you show up, load the
-              debris, and haul it away. Trailer drop-off only is still available for some jobs, but it is not
-              the main pitch.
+              The pricing shown on the site can cover up to 3 days for standard self-load rental. If the trailer
+              needs to stay longer, dispatch can add extra-day pricing.
             </p>
           </details>
 
           <details>
             <summary>When do overage charges apply?</summary>
             <p>
-              Only when the actual dump weight is above the included weight limit for the debris type you booked.
-              If it stays under the included limit, there is no overage charge.
+              Only when the actual dump weight is above the included weight limit for the debris type and size
+              you booked. Standard jobs are shown around 2.0 tons included, and heavier material can be closer to
+              1.5 tons included. Anything above the limit is billed at $120 per ton.
             </p>
           </details>
 
@@ -296,30 +419,6 @@
             <p>
               Yes, Zelle can be your preferred payment method for deposits and balances if your business bank account
               supports it. Card or invoice payment can still be offered when a customer wants a formal payment link.
-            </p>
-          </details>
-
-          <details>
-            <summary>Does Zelle mean I do not have to deal with taxes?</summary>
-            <p>
-              No. Payment method and tax responsibility are different things. Zelle may help reduce processing costs,
-              but business income still has to be tracked and reported properly.
-            </p>
-          </details>
-
-          <details>
-            <summary>Why is owner loading service more expensive?</summary>
-            <p>
-              Because that changes the job from simple trailer rental into labor service. Once loading is included,
-              the estimate also has to cover time, lifting, carrying distance, stairs, and job difficulty.
-            </p>
-          </details>
-
-          <details>
-            <summary>Which materials usually cost more?</summary>
-            <p>
-              Shingles, concrete, dirt, brick, and tile are much heavier than normal household junk, so they often
-              have lower included tonnage and a higher overage rate.
             </p>
           </details>
 
@@ -337,17 +436,20 @@
     <footer class="site-footer">
       <div class="footer-bar">
         <span class="footer-brand">
-          <img class="footer-brand-logo" src="./assets/logo-irondrop-site.svg" alt="IronDrop">
+          <span class="footer-brand-copy">
+            <strong>Bulldog</strong>
+            <span>Containers</span>
+          </span>
         </span>
         <div class="footer-links">
           <a href="tel:+19563159677">Call: (956) 315-9677</a>
           <a href="sms:+19563159677">Text Dispatch</a>
-          <a href="mailto:hello@irondropdumpsters.com">hello@irondropdumpsters.com</a>
+          <a href="mailto:dispatch@bulldogcontainers.com">dispatch@bulldogcontainers.com</a>
         </div>
       </div>
     </footer>
   </div>
 
-  <script src="./script.js"></script>
+  <script src="./script.js?v=20260407b"></script>
 </body>
 </html>

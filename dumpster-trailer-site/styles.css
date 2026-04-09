@@ -8,9 +8,11 @@
   --text: #edf5f7;
   --text-soft: #b6c5cb;
   --text-muted: #8ca0a9;
-  --accent: #ff8428;
-  --accent-2: #ffb04d;
-  --sand: #ffd698;
+  --accent: #65d400;
+  --accent-2: #b8ff57;
+  --sand: #b8ff57;
+  --steel: #f3f5f7;
+  --brand-green: #89f11d;
   --shadow-lg: 0 28px 80px rgba(0, 0, 0, 0.32);
   --shadow-md: 0 18px 42px rgba(0, 0, 0, 0.22);
   --radius-xl: 34px;
@@ -33,7 +35,7 @@ body {
   font-family: "Instrument Sans", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at 12% 18%, rgba(255, 132, 40, 0.1), transparent 20%),
+    radial-gradient(circle at 12% 18%, rgba(101, 212, 0, 0.12), transparent 22%),
     linear-gradient(180deg, #0b1620 0%, #0d1a25 100%);
 }
 
@@ -92,13 +94,37 @@ textarea {
 .brand {
   display: inline-flex;
   align-items: center;
-  max-width: min(100%, 348px);
+  max-width: min(100%, 320px);
 }
 
-.brand-logo {
-  width: min(100%, 330px);
-  height: auto;
-  display: block;
+.brand-copy {
+  display: grid;
+  gap: 0.08rem;
+  line-height: 1;
+}
+
+.brand-copy strong {
+  color: var(--steel);
+  font-size: 1.18rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.brand-copy span {
+  color: var(--brand-green);
+  font-size: 1.08rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.brand-copy small {
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .topbar-actions {
@@ -110,6 +136,11 @@ textarea {
 .topbar-actions a {
   color: var(--text-soft);
   font-size: 0.94rem;
+  transition: color 180ms ease;
+}
+
+.topbar-actions a:hover {
+  color: var(--text);
 }
 
 .nav-cta,
@@ -117,7 +148,7 @@ textarea {
   color: #08131a;
   font-weight: 800;
   background: linear-gradient(135deg, var(--accent), var(--accent-2));
-  box-shadow: 0 18px 36px rgba(255, 132, 40, 0.26);
+  box-shadow: 0 18px 36px rgba(101, 212, 0, 0.22);
 }
 
 .nav-cta {
@@ -139,6 +170,7 @@ textarea {
 .hero-copy,
 .quote-panel,
 .strip-card,
+.booking-day,
 .faq-list details,
 .footer-bar {
   border: 1px solid var(--line);
@@ -151,6 +183,59 @@ textarea {
 .quote-panel {
   padding: 1.7rem;
   border-radius: var(--radius-xl);
+}
+
+.hero-brand-banner {
+  margin-bottom: 1rem;
+  padding: 0.8rem;
+  border-radius: 1.4rem;
+  border: 1px solid rgba(137, 241, 29, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(137, 241, 29, 0.08), transparent 26%),
+    rgba(255, 255, 255, 0.02);
+}
+
+.hero-brand-image {
+  width: 100%;
+  max-width: 44rem;
+  height: auto;
+  display: block;
+  border-radius: 1rem;
+}
+
+.hero-brand-line,
+.hero-brand-subtitle {
+  margin: 0;
+}
+
+.hero-brand-line {
+  font-family: "Teko", sans-serif;
+  line-height: 0.88;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.hero-brand-line-top {
+  color: var(--steel);
+  font-size: clamp(3rem, 7vw, 5rem);
+  -webkit-text-stroke: 1.6px rgba(8, 15, 20, 0.92);
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.hero-brand-line-bottom {
+  color: var(--brand-green);
+  font-size: clamp(2.8rem, 6.2vw, 4.7rem);
+  -webkit-text-stroke: 1.6px rgba(8, 15, 20, 0.92);
+  text-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+}
+
+.hero-brand-subtitle {
+  margin-top: 0.5rem;
+  color: var(--text-soft);
+  font-size: 0.86rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .eyebrow {
@@ -211,6 +296,17 @@ textarea {
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
+}
+
+.contact-chip:hover,
+.footer-links a:hover {
+  border-color: rgba(101, 212, 0, 0.24);
+  background: rgba(255, 255, 255, 0.07);
+  transform: translateY(-1px);
 }
 
 .contact-chip-muted {
@@ -277,9 +373,9 @@ textarea {
   margin-top: 0.95rem;
   padding: 1rem 1.05rem;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 132, 40, 0.18);
+  border: 1px solid rgba(101, 212, 0, 0.18);
   background:
-    radial-gradient(circle at top right, rgba(255, 132, 40, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(101, 212, 0, 0.14), transparent 34%),
     rgba(255, 255, 255, 0.03);
 }
 
@@ -333,16 +429,16 @@ textarea {
 .quote-form input:focus,
 .quote-form select:focus,
 .quote-form textarea:focus {
-  border-color: rgba(255, 132, 40, 0.68);
-  box-shadow: 0 0 0 3px rgba(255, 132, 40, 0.14);
+  border-color: rgba(101, 212, 0, 0.68);
+  box-shadow: 0 0 0 3px rgba(101, 212, 0, 0.14);
 }
 
 .estimate-card {
   padding: 1rem 1.05rem;
   border-radius: var(--radius-md);
-  border: 1px solid rgba(255, 132, 40, 0.24);
+  border: 1px solid rgba(101, 212, 0, 0.24);
   background:
-    radial-gradient(circle at top right, rgba(255, 132, 40, 0.18), transparent 34%),
+    radial-gradient(circle at top right, rgba(101, 212, 0, 0.18), transparent 34%),
     rgba(255, 255, 255, 0.04);
 }
 
@@ -388,9 +484,75 @@ textarea {
   margin: 0;
 }
 
+.payment-quick-card {
+  padding: 1rem 1.05rem;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(101, 212, 0, 0.2);
+  background:
+    linear-gradient(135deg, rgba(101, 212, 0, 0.08), transparent 36%),
+    rgba(255, 255, 255, 0.03);
+}
+
+.payment-quick-card h3,
+.payment-quick-card p {
+  margin: 0;
+}
+
+.payment-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.55rem;
+}
+
+.payment-summary span {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.payment-summary strong {
+  font-family: "Teko", sans-serif;
+  font-size: 3rem;
+  line-height: 0.9;
+}
+
+.payment-quick-label {
+  margin-bottom: 0.45rem;
+  color: var(--sand);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.payment-quick-card h3 {
+  margin-bottom: 0.45rem;
+  font-size: 1.15rem;
+}
+
+.payment-quick-card p:last-child {
+  color: var(--text-soft);
+  line-height: 1.72;
+}
+
 .action-row {
   display: flex;
   gap: 0.85rem;
+}
+
+.payment-action-row .button-primary {
+  background: linear-gradient(135deg, #73ef00, #b8ff57);
+}
+
+.payment-action-row .button-secondary {
+  border-color: rgba(101, 212, 0, 0.24);
+  background:
+    linear-gradient(135deg, rgba(101, 212, 0, 0.08), transparent 36%),
+    rgba(255, 255, 255, 0.04);
 }
 
 .button {
@@ -403,6 +565,16 @@ textarea {
   border-radius: 999px;
   cursor: pointer;
   font-weight: 800;
+  transition:
+    transform 180ms ease,
+    border-color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.button:hover,
+.nav-cta:hover {
+  transform: translateY(-1px);
 }
 
 .button-primary,
@@ -425,6 +597,114 @@ textarea {
 
 .payment-strip {
   margin-top: 0;
+}
+
+.booking-shell {
+  margin-top: 1rem;
+  padding: 1rem 0 0;
+}
+
+.booking-heading {
+  max-width: 42rem;
+  margin-bottom: 1rem;
+}
+
+.booking-heading h2 {
+  margin: 0;
+  font-family: "Teko", sans-serif;
+  font-size: clamp(2.8rem, 5vw, 4.3rem);
+  font-weight: 600;
+  line-height: 0.92;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.booking-text {
+  margin: 0.85rem 0 0;
+  color: var(--text-soft);
+  line-height: 1.72;
+}
+
+.booking-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+  gap: 0.85rem;
+}
+
+.booking-day {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+}
+
+.booking-weekday,
+.booking-date {
+  margin: 0;
+}
+
+.booking-weekday {
+  color: var(--sand);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.booking-date {
+  margin-top: 0.35rem;
+  font-family: "Teko", sans-serif;
+  font-size: 2rem;
+  line-height: 0.95;
+}
+
+.booking-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.7rem;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--line);
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 4.8rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.status-open {
+  color: #08131a;
+  border-color: rgba(184, 255, 87, 0.35);
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+}
+
+.status-held {
+  color: #08131a;
+  border-color: rgba(255, 217, 102, 0.4);
+  background: linear-gradient(135deg, #f7d34f, #ffe88f);
+}
+
+.status-booked {
+  color: var(--text);
+  border-color: rgba(255, 86, 86, 0.34);
+  background: rgba(255, 86, 86, 0.14);
+}
+
+.booking-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 1rem 0 0;
 }
 
 .strip-card {
@@ -503,13 +783,30 @@ textarea {
 
 .footer-brand {
   display: inline-flex;
-  max-width: min(100%, 290px);
+  align-items: center;
+  max-width: min(100%, 320px);
 }
 
-.footer-brand-logo {
-  width: min(100%, 290px);
-  height: auto;
-  display: block;
+.footer-brand-copy {
+  display: grid;
+  gap: 0.08rem;
+  line-height: 1;
+}
+
+.footer-brand-copy strong {
+  color: var(--steel);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.footer-brand-copy span {
+  color: var(--brand-green);
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .footer-links {
@@ -523,6 +820,10 @@ textarea {
   border-radius: 999px;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.04);
+  transition:
+    border-color 180ms ease,
+    background 180ms ease,
+    transform 180ms ease;
 }
 
 @media (max-width: 1100px) {
@@ -568,10 +869,20 @@ textarea {
   }
 
   .brand,
-  .brand-logo,
-  .footer-brand,
-  .footer-brand-logo {
-    width: 100%;
+  .footer-brand {
+    width: auto;
+  }
+
+  .brand-copy strong {
+    font-size: 1rem;
+  }
+
+  .brand-copy span {
+    font-size: 0.88rem;
+  }
+
+  .brand-copy small {
+    font-size: 0.67rem;
   }
 
   .footer-bar {
@@ -585,6 +896,46 @@ textarea {
   .quote-panel,
   .strip-card {
     padding: 1.2rem;
+  }
+
+  .topbar {
+    padding: 0.85rem 1rem;
+  }
+
+  .brand {
+    max-width: 100%;
+  }
+
+  .brand-copy strong {
+    font-size: 0.95rem;
+  }
+
+  .brand-copy span {
+    font-size: 0.82rem;
+  }
+
+  .brand-copy small {
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+  }
+
+  .hero-brand-banner {
+    padding: 0.55rem;
+  }
+
+  .hero-brand-subtitle {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+  }
+
+  .payment-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.35rem;
+  }
+
+  .payment-summary strong {
+    font-size: 2.4rem;
   }
 
   .hero-copy h1 {
