@@ -96,6 +96,52 @@ def sign_in_user(email, password):
     }
 
 
+def sign_up_user(email, password):
+    normalized_email = (email or "").strip()
+
+    try:
+        auth_client = _create_supabase_client()
+        auth_response = auth_client.auth.sign_up(
+            {
+                "email": normalized_email,
+                "password": password,
+            }
+        )
+        auth_user = getattr(auth_response, "user", None)
+        auth_session = getattr(auth_response, "session", None)
+        access_token = getattr(auth_session, "access_token", "") or ""
+        refresh_token = getattr(auth_session, "refresh_token", "") or ""
+
+        return {
+            "ok": True,
+            "email": getattr(auth_user, "email", normalized_email) or normalized_email,
+            "provider": "supabase_auth",
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "session_started": bool(access_token and refresh_token),
+            "needs_email_confirmation": not bool(access_token and refresh_token),
+        }
+    except Exception as error:
+        return {
+            "ok": False,
+            "error": str(error),
+        }
+
+
+def send_password_reset(email):
+    normalized_email = (email or "").strip()
+
+    try:
+        auth_client = _create_supabase_client()
+        auth_client.auth.reset_password_for_email(normalized_email)
+        return {"ok": True}
+    except Exception as error:
+        return {
+            "ok": False,
+            "error": str(error),
+        }
+
+
 def sign_out_user(access_token="", refresh_token=""):
     if not access_token or not refresh_token:
         return False

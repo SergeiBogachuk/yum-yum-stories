@@ -23,8 +23,10 @@ from database import (
     delete_story,
     get_user_stories,
     save_story,
+    send_password_reset,
     sign_in_user,
     sign_out_user,
+    sign_up_user,
     track_event,
     update_audio,
 )
@@ -1273,6 +1275,23 @@ lang_dict = {
         "login_subtitle": "Соберите свою спокойную библиотеку историй для сна, поддержки и роста.",
         "login_btn": "Войти",
         "login_error": "Не удалось войти. Проверь email и пароль.",
+        "auth_tab_login": "Вход",
+        "auth_tab_signup": "Регистрация",
+        "auth_tab_reset": "Забыли пароль?",
+        "signup_btn": "Создать аккаунт",
+        "signup_password_confirm_label": "Повторите пароль",
+        "signup_success": "Аккаунт создан. Если придёт письмо подтверждения, открой его, потом войди.",
+        "signup_login_hint": "После подтверждения email можно войти на этой странице.",
+        "signup_error": "Не удалось создать аккаунт. Возможно, такой email уже зарегистрирован.",
+        "signup_password_mismatch": "Пароли не совпадают.",
+        "signup_password_short": "Пароль должен быть минимум 6 символов.",
+        "email_required": "Введите email.",
+        "password_required": "Введите пароль.",
+        "reset_title": "Восстановить пароль",
+        "reset_hint": "Введите email, и мы отправим ссылку для сброса пароля.",
+        "reset_btn": "Отправить ссылку",
+        "reset_success": "Если такой email есть в системе, ссылка для сброса отправлена.",
+        "reset_error": "Не удалось отправить письмо. Проверь email и попробуй ещё раз.",
         "support_title": "Поддержка",
         "support_hint": "Если что-то непонятно, не работает или нужна помощь, можно сразу написать нам.",
         "support_feedback_btn": "Отправить отзыв",
@@ -1455,6 +1474,23 @@ lang_dict = {
         "login_subtitle": "Build a calm little library of stories for sleep, connection, and confidence.",
         "login_btn": "Log in",
         "login_error": "Login failed. Please check your email and password.",
+        "auth_tab_login": "Log in",
+        "auth_tab_signup": "Create account",
+        "auth_tab_reset": "Forgot password?",
+        "signup_btn": "Create account",
+        "signup_password_confirm_label": "Confirm password",
+        "signup_success": "Account created. If a confirmation email arrives, open it, then log in.",
+        "signup_login_hint": "After confirming your email, you can log in on this page.",
+        "signup_error": "We could not create the account. This email may already be registered.",
+        "signup_password_mismatch": "Passwords do not match.",
+        "signup_password_short": "Password must be at least 6 characters.",
+        "email_required": "Please enter an email.",
+        "password_required": "Please enter a password.",
+        "reset_title": "Reset password",
+        "reset_hint": "Enter your email and we will send a password reset link.",
+        "reset_btn": "Send reset link",
+        "reset_success": "If that email exists, a password reset link has been sent.",
+        "reset_error": "We could not send the reset email. Please check the email and try again.",
         "support_title": "Support",
         "support_hint": "If something feels unclear, broken, or you need help, you can message us right away.",
         "support_feedback_btn": "Send feedback",
@@ -1637,6 +1673,23 @@ lang_dict = {
         "login_subtitle": "Construiește o bibliotecă liniștită de povești pentru somn, apropiere și creștere.",
         "login_btn": "Autentificare",
         "login_error": "Autentificarea a eșuat. Verifică emailul și parola.",
+        "auth_tab_login": "Autentificare",
+        "auth_tab_signup": "Creează cont",
+        "auth_tab_reset": "Ai uitat parola?",
+        "signup_btn": "Creează cont",
+        "signup_password_confirm_label": "Confirmă parola",
+        "signup_success": "Contul a fost creat. Dacă primești email de confirmare, deschide-l, apoi autentifică-te.",
+        "signup_login_hint": "După confirmarea emailului, te poți autentifica pe această pagină.",
+        "signup_error": "Nu am putut crea contul. Este posibil ca emailul să fie deja înregistrat.",
+        "signup_password_mismatch": "Parolele nu coincid.",
+        "signup_password_short": "Parola trebuie să aibă minimum 6 caractere.",
+        "email_required": "Introdu emailul.",
+        "password_required": "Introdu parola.",
+        "reset_title": "Resetare parolă",
+        "reset_hint": "Introdu emailul și vom trimite un link pentru resetarea parolei.",
+        "reset_btn": "Trimite linkul",
+        "reset_success": "Dacă acest email există, linkul de resetare a fost trimis.",
+        "reset_error": "Nu am putut trimite emailul. Verifică adresa și încearcă din nou.",
         "support_title": "Suport",
         "support_hint": "Dacă ceva nu este clar, nu funcționează sau ai nevoie de ajutor, ne poți scrie imediat.",
         "support_feedback_btn": "Trimite feedback",
@@ -1852,6 +1905,8 @@ if "auth_access_token" not in st.session_state:
     st.session_state.auth_access_token = ""
 if "auth_refresh_token" not in st.session_state:
     st.session_state.auth_refresh_token = ""
+if "auth_mode" not in st.session_state:
+    st.session_state.auth_mode = "login"
 if "story_generation_job" not in st.session_state:
     st.session_state.story_generation_job = None
 if "audio_generation_job" not in st.session_state:
@@ -1906,40 +1961,192 @@ if not st.session_state.get("logged_in", False):
         )
 
         st.markdown("---")
-        with st.form("login_form"):
-            email = st.text_input(copy_pack.get("email_label", "Email"), key="login_email")
-            password = st.text_input(
-                copy_pack.get("password_label", "Password"),
-                type="password",
-                key="login_password",
-            )
-
-            submitted = st.form_submit_button(
-                copy_pack.get("login_btn", "Log in"),
-                type="primary",
+        auth_mode = st.session_state.get("auth_mode", "login")
+        login_col, signup_col, reset_col = st.columns(3)
+        with login_col:
+            if st.button(
+                copy_pack.get("auth_tab_login", "Log in"),
+                type="primary" if auth_mode == "login" else "secondary",
                 use_container_width=True,
-            )
-
-        if submitted:
-            sign_in_result = sign_in_user(email, password)
-            if sign_in_result.get("ok"):
-                track_event(
-                    "login_success",
-                    sign_in_result.get("email", email.strip()),
-                    {"provider": sign_in_result.get("provider", "")},
-                )
-                st.session_state.logged_in = True
-                st.session_state.user_email = sign_in_result.get("email", email.strip())
-                st.session_state.auth_provider = sign_in_result.get("provider", "")
-                st.session_state.auth_access_token = sign_in_result.get("access_token", "")
-                st.session_state.auth_refresh_token = sign_in_result.get("refresh_token", "")
-                st.session_state.page_mode = "form"
-                st.session_state.view_story = None
+                key="auth_mode_login_btn",
+            ):
+                st.session_state.auth_mode = "login"
                 st.rerun()
-            else:
-                st.error(copy_pack.get("login_error", "Login failed"))
+        with signup_col:
+            if st.button(
+                copy_pack.get("auth_tab_signup", "Create account"),
+                type="primary" if auth_mode == "signup" else "secondary",
+                use_container_width=True,
+                key="auth_mode_signup_btn",
+            ):
+                st.session_state.auth_mode = "signup"
+                st.rerun()
+        with reset_col:
+            if st.button(
+                copy_pack.get("auth_tab_reset", "Forgot password?"),
+                type="primary" if auth_mode == "reset" else "secondary",
+                use_container_width=True,
+                key="auth_mode_reset_btn",
+            ):
+                st.session_state.auth_mode = "reset"
+                st.rerun()
 
-        render_support_panel(copy_pack, st.session_state.get("login_email", ""))
+        auth_mode = st.session_state.get("auth_mode", "login")
+
+        if auth_mode == "signup":
+            with st.form("signup_form"):
+                signup_email = st.text_input(
+                    copy_pack.get("email_label", "Email"),
+                    key="signup_email",
+                )
+                signup_password = st.text_input(
+                    copy_pack.get("password_label", "Password"),
+                    type="password",
+                    key="signup_password",
+                )
+                signup_password_confirm = st.text_input(
+                    copy_pack.get("signup_password_confirm_label", "Confirm password"),
+                    type="password",
+                    key="signup_password_confirm",
+                )
+
+                signup_submitted = st.form_submit_button(
+                    copy_pack.get("signup_btn", "Create account"),
+                    type="primary",
+                    use_container_width=True,
+                )
+
+            if signup_submitted:
+                if not signup_email.strip():
+                    st.error(copy_pack.get("email_required", "Please enter an email."))
+                elif not signup_password:
+                    st.error(copy_pack.get("password_required", "Please enter a password."))
+                elif len(signup_password) < 6:
+                    st.error(
+                        copy_pack.get(
+                            "signup_password_short",
+                            "Password must be at least 6 characters.",
+                        )
+                    )
+                elif signup_password != signup_password_confirm:
+                    st.error(copy_pack.get("signup_password_mismatch", "Passwords do not match."))
+                else:
+                    sign_up_result = sign_up_user(signup_email, signup_password)
+                    if sign_up_result.get("ok") and sign_up_result.get("session_started"):
+                        track_event(
+                            "signup_success",
+                            sign_up_result.get("email", signup_email.strip()),
+                            {"provider": sign_up_result.get("provider", "")},
+                        )
+                        st.session_state.logged_in = True
+                        st.session_state.user_email = sign_up_result.get(
+                            "email",
+                            signup_email.strip(),
+                        )
+                        st.session_state.auth_provider = sign_up_result.get("provider", "")
+                        st.session_state.auth_access_token = sign_up_result.get("access_token", "")
+                        st.session_state.auth_refresh_token = sign_up_result.get("refresh_token", "")
+                        st.session_state.page_mode = "form"
+                        st.session_state.view_story = None
+                        st.rerun()
+                    elif sign_up_result.get("ok"):
+                        track_event("signup_pending_confirmation", signup_email.strip())
+                        st.success(copy_pack.get("signup_success", "Account created."))
+                        st.info(
+                            copy_pack.get(
+                                "signup_login_hint",
+                                "You can log in here after confirming your email.",
+                            )
+                        )
+                    else:
+                        st.error(
+                            copy_pack.get(
+                                "signup_error",
+                                "We could not create the account.",
+                            )
+                        )
+
+        elif auth_mode == "reset":
+            st.markdown(f"### {copy_pack.get('reset_title', 'Reset password')}")
+            st.caption(
+                copy_pack.get(
+                    "reset_hint",
+                    "Enter your email and we will send a password reset link.",
+                )
+            )
+            with st.form("reset_form"):
+                reset_email = st.text_input(
+                    copy_pack.get("email_label", "Email"),
+                    key="reset_email",
+                )
+                reset_submitted = st.form_submit_button(
+                    copy_pack.get("reset_btn", "Send reset link"),
+                    type="primary",
+                    use_container_width=True,
+                )
+
+            if reset_submitted:
+                if not reset_email.strip():
+                    st.error(copy_pack.get("email_required", "Please enter an email."))
+                else:
+                    reset_result = send_password_reset(reset_email)
+                    if reset_result.get("ok"):
+                        track_event("password_reset_requested", reset_email.strip())
+                        st.success(
+                            copy_pack.get(
+                                "reset_success",
+                                "If that email exists, a password reset link has been sent.",
+                            )
+                        )
+                    else:
+                        st.error(
+                            copy_pack.get(
+                                "reset_error",
+                                "We could not send the reset email.",
+                            )
+                        )
+
+        else:
+            with st.form("login_form"):
+                email = st.text_input(copy_pack.get("email_label", "Email"), key="login_email")
+                password = st.text_input(
+                    copy_pack.get("password_label", "Password"),
+                    type="password",
+                    key="login_password",
+                )
+
+                submitted = st.form_submit_button(
+                    copy_pack.get("login_btn", "Log in"),
+                    type="primary",
+                    use_container_width=True,
+                )
+
+            if submitted:
+                sign_in_result = sign_in_user(email, password)
+                if sign_in_result.get("ok"):
+                    track_event(
+                        "login_success",
+                        sign_in_result.get("email", email.strip()),
+                        {"provider": sign_in_result.get("provider", "")},
+                    )
+                    st.session_state.logged_in = True
+                    st.session_state.user_email = sign_in_result.get("email", email.strip())
+                    st.session_state.auth_provider = sign_in_result.get("provider", "")
+                    st.session_state.auth_access_token = sign_in_result.get("access_token", "")
+                    st.session_state.auth_refresh_token = sign_in_result.get("refresh_token", "")
+                    st.session_state.page_mode = "form"
+                    st.session_state.view_story = None
+                    st.rerun()
+                else:
+                    st.error(copy_pack.get("login_error", "Login failed"))
+
+        support_email_value = (
+            st.session_state.get("login_email")
+            or st.session_state.get("signup_email")
+            or st.session_state.get("reset_email")
+            or ""
+        )
+        render_support_panel(copy_pack, support_email_value)
 
 else:
     copy_pack = lang_dict.get(st.session_state.sel_lang, lang_dict["English"])
