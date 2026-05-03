@@ -46,7 +46,7 @@ STORY_GOAL_CODES = ["sleep", "calm", "confidence", "big_feelings"]
 
 st.set_page_config(
     page_title=BRAND_NAME,
-    page_icon="🌙",
+    page_icon="static/favicon.png",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -54,7 +54,47 @@ apply_styles()
 
 
 def inject_app_icons():
-    return
+    components.html(
+        f"""
+        <script>
+        const head = window.parent.document.head;
+        const iconLinks = [
+            ["icon", "/app/static/favicon.png", "32x32"],
+            ["apple-touch-icon", "/app/static/apple-touch-icon.png", "180x180"],
+            ["manifest", "/app/static/site.webmanifest", ""],
+        ];
+
+        for (const [rel, href, sizes] of iconLinks) {{
+            head.querySelectorAll(`link[rel="${{rel}}"]`).forEach((node) => node.remove());
+            const link = window.parent.document.createElement("link");
+            link.rel = rel;
+            link.href = href;
+            if (sizes) link.sizes = sizes;
+            if (rel !== "manifest") link.type = "image/png";
+            head.appendChild(link);
+        }}
+
+        const metaTags = [
+            ["apple-mobile-web-app-capable", "yes"],
+            ["apple-mobile-web-app-title", "{BRAND_NAME}"],
+            ["application-name", "{BRAND_NAME}"],
+            ["theme-color", "#1b1230"],
+        ];
+
+        for (const [name, content] of metaTags) {{
+            let meta = head.querySelector(`meta[name="${{name}}"]`);
+            if (!meta) {{
+                meta = window.parent.document.createElement("meta");
+                meta.name = name;
+                head.appendChild(meta);
+            }}
+            meta.content = content;
+        }}
+        </script>
+        """,
+        height=0,
+        width=0,
+    )
 
 
 inject_app_icons()
