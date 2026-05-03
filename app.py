@@ -959,13 +959,21 @@ def queue_story_voice_note_processing():
     st.session_state.voice_note_pending_process = True
 
 
-def get_optional_secret_or_env(name, default=""):
-    if name in st.secrets and st.secrets[name]:
-        return str(st.secrets[name]).strip()
+def get_streamlit_secret(name):
+    try:
+        return st.secrets[name]
+    except Exception:
+        return None
 
-    value = os.getenv(name, default)
+
+def get_optional_secret_or_env(name, default=""):
+    value = os.getenv(name)
     if value:
         return str(value).strip()
+
+    secret_value = get_streamlit_secret(name)
+    if secret_value:
+        return str(secret_value).strip()
 
     return default
 

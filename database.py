@@ -8,13 +8,21 @@ class EmptyResult:
     data = []
 
 
-def _secret_or_env(name):
-    if name in st.secrets and st.secrets[name]:
+def _streamlit_secret(name):
+    try:
         return st.secrets[name]
+    except Exception:
+        return None
 
+
+def _secret_or_env(name):
     value = os.getenv(name)
     if value:
         return value
+
+    secret_value = _streamlit_secret(name)
+    if secret_value:
+        return secret_value
 
     raise RuntimeError(f"Missing required secret: {name}")
 

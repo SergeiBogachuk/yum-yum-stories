@@ -21,24 +21,33 @@ except ImportError:
     service_account = None
 
 
-def _secret_or_env(name):
-    if name in st.secrets and st.secrets[name]:
+def _streamlit_secret(name):
+    try:
         return st.secrets[name]
+    except Exception:
+        return None
 
+
+def _secret_or_env(name):
     value = os.getenv(name)
     if value:
         return value
+
+    secret_value = _streamlit_secret(name)
+    if secret_value:
+        return secret_value
 
     raise RuntimeError(f"Missing required secret: {name}")
 
 
 def _optional_secret_or_env(name, default=None):
-    if name in st.secrets and st.secrets[name]:
-        return st.secrets[name]
-
     value = os.getenv(name)
     if value:
         return value
+
+    secret_value = _streamlit_secret(name)
+    if secret_value:
+        return secret_value
 
     return default
 
@@ -82,8 +91,9 @@ def get_google_tts_client():
         return None
 
     try:
-        if "gcp_service_account" in st.secrets:
-            service_account_info = dict(st.secrets["gcp_service_account"])
+        gcp_service_account = _streamlit_secret("gcp_service_account")
+        if gcp_service_account:
+            service_account_info = dict(gcp_service_account)
             credentials = service_account.Credentials.from_service_account_info(
                 service_account_info
             )
@@ -130,9 +140,7 @@ def generate_story_text(
     age_text = age_band or "young child"
     story_goal_text = story_goal or "help the child feel safe, seen, and gently supported at bedtime"
     favorite_hero_text = favorite_hero or "use an original cozy character if helpful"
-    model = os.getenv("OPENAI_MODEL") or (
-        st.secrets["OPENAI_MODEL"] if "OPENAI_MODEL" in st.secrets else "gpt-5.3-chat-latest"
-    )
+    model = _optional_secret_or_env("OPENAI_MODEL", "gpt-5.3-chat-latest")
 
     system_prompt = (
         "You are a warm children's bedtime storyteller with a strong understanding of gentle child "
@@ -318,9 +326,7 @@ def get_speech_b64(text, voice_id, with_details=False):
 
 
 def get_openai_speech_b64(text, voice="marin", with_details=False):
-    model = os.getenv("OPENAI_TTS_MODEL") or (
-        st.secrets["OPENAI_TTS_MODEL"] if "OPENAI_TTS_MODEL" in st.secrets else "gpt-4o-mini-tts"
-    )
+    model = _optional_secret_or_env("OPENAI_TTS_MODEL", "gpt-4o-mini-tts")
     chunks = _chunk_tts_text(text)
     if not chunks:
         return None
@@ -361,11 +367,7 @@ def get_story_note_transcription(audio_bytes, mime_type="audio/wav", language=No
     if not audio_bytes:
         return None, "No audio was recorded."
 
-    model = os.getenv("OPENAI_TRANSCRIBE_MODEL") or (
-        st.secrets["OPENAI_TRANSCRIBE_MODEL"]
-        if "OPENAI_TRANSCRIBE_MODEL" in st.secrets
-        else "gpt-4o-mini-transcribe"
-    )
+    model = _optional_secret_or_env("OPENAI_TRANSCRIBE_MODEL", "gpt-4o-mini-transcribe")
 
     try:
         file_ext = "wav"
