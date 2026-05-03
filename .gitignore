@@ -3,3 +3,7 @@
 *.pyc
 
 .streamlit/secrets.toml
+
+# Other local projects that sometimes sit next to this app.
+pethelpai/
+pressure-washing-site/
