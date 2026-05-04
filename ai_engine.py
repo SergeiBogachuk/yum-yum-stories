@@ -8,18 +8,6 @@ import requests
 import streamlit as st
 from openai import OpenAI
 
-try:
-    import boto3
-except ImportError:
-    boto3 = None
-
-try:
-    from google.cloud import texttospeech
-    from google.oauth2 import service_account
-except ImportError:
-    texttospeech = None
-    service_account = None
-
 
 def _streamlit_secret(name):
     try:
@@ -58,35 +46,19 @@ def get_openai_client():
 
 
 @st.cache_resource(show_spinner=False)
-def get_aws_polly_client():
-    if boto3 is None:
-        return None
-
-    region = _optional_secret_or_env("AWS_DEFAULT_REGION", "us-east-1")
-    aws_access_key_id = _optional_secret_or_env("AWS_ACCESS_KEY_ID")
-    aws_secret_access_key = _optional_secret_or_env("AWS_SECRET_ACCESS_KEY")
-    aws_session_token = _optional_secret_or_env("AWS_SESSION_TOKEN")
-
-    client_kwargs = {
-        "service_name": "polly",
-        "region_name": region,
-    }
-
-    if aws_access_key_id and aws_secret_access_key:
-        client_kwargs["aws_access_key_id"] = aws_access_key_id
-        client_kwargs["aws_secret_access_key"] = aws_secret_access_key
-
-    if aws_session_token:
-        client_kwargs["aws_session_token"] = aws_session_token
-
+def get_google_tts_modules():
     try:
-        return boto3.client(**client_kwargs)
-    except Exception:
-        return None
+        from google.cloud import texttospeech
+        from google.oauth2 import service_account
+    except ImportError:
+        return None, None
+
+    return texttospeech, service_account
 
 
 @st.cache_resource(show_spinner=False)
 def get_google_tts_client():
+    texttospeech, service_account = get_google_tts_modules()
     if texttospeech is None:
         return None
 
@@ -402,61 +374,8 @@ def get_story_note_transcription(audio_bytes, mime_type="audio/wav", language=No
         return None, error_detail
 
 
-def get_aws_polly_speech_b64(text, voice_id, with_details=False):
-    client = get_aws_polly_client()
-    if client is None:
-        detail = "AWS Polly client is not configured. Check boto3 and AWS keys."
-        return (None, detail) if with_details else None
-
-    chunks = _chunk_tts_text(text, max_chars=2400)
-    if not chunks:
-        detail = "The text is empty."
-        return (None, detail) if with_details else None
-
-    audio_parts = []
-    for chunk in chunks:
-        response = None
-        try:
-            response = client.synthesize_speech(
-                Text=chunk,
-                OutputFormat="mp3",
-                VoiceId=voice_id,
-                Engine="neural",
-                TextType="text",
-            )
-        except Exception:
-            try:
-                response = client.synthesize_speech(
-                    Text=chunk,
-                    OutputFormat="mp3",
-                    VoiceId=voice_id,
-                    Engine="standard",
-                    TextType="text",
-                )
-            except Exception as error:
-                error_detail = f"{type(error).__name__}: {error}"
-                return (None, error_detail) if with_details else None
-
-        audio_stream = response.get("AudioStream") if response else None
-        if not audio_stream:
-            detail = "AWS Polly returned no audio stream."
-            return (None, detail) if with_details else None
-
-        audio_parts.append(audio_stream.read())
-        try:
-            audio_stream.close()
-        except Exception:
-            pass
-
-    if not audio_parts:
-        detail = "AWS Polly returned empty audio."
-        return (None, detail) if with_details else None
-
-    audio_b64 = base64.b64encode(b"".join(audio_parts)).decode()
-    return (audio_b64, None) if with_details else audio_b64
-
-
 def get_google_cloud_speech_b64(text, voice_config, with_details=False):
+    texttospeech, _ = get_google_tts_modules()
     client = get_google_tts_client()
     if client is None or texttospeech is None:
         detail = "Google Cloud Text-to-Speech client is not configured. Check library install and Google credentials."

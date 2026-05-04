@@ -419,6 +419,7 @@ def replay_intro_overlay():
     st.rerun()
 
 
+@st.cache_data(show_spinner=False)
 def get_bg_music_b64():
     try:
         with open("bg_music.mp3", "rb") as file:
