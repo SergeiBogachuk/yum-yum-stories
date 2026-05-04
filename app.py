@@ -1,7 +1,6 @@
 import base64
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-import hashlib
 import html
 import os
 import re
@@ -17,7 +16,6 @@ from ai_engine import (
     get_google_cloud_speech_b64,
     get_openai_speech_b64,
     get_speech_b64,
-    get_story_note_transcription,
 )
 from database import (
     delete_story,
@@ -947,61 +945,6 @@ def build_story_payload(
     }
 
 
-def get_story_note_language_code(selected_lang):
-    return {
-        "Русский": "ru",
-        "English": "en",
-        "Română": "ro",
-    }.get(selected_lang, "en")
-
-
-def apply_pending_story_details():
-    pending_text = (st.session_state.pop("pending_details_append", "") or "").strip()
-    if not pending_text:
-        return
-
-    existing_text = (st.session_state.get("details_input", "") or "").strip()
-    st.session_state.details_input = (
-        f"{existing_text}\n\n{pending_text}".strip() if existing_text else pending_text
-    )
-
-
-def maybe_process_story_voice_note(voice_note, selected_lang):
-    if voice_note is None:
-        return
-
-    audio_bytes = voice_note.getvalue()
-    if not audio_bytes:
-        return
-
-    note_hash = hashlib.sha1(audio_bytes).hexdigest()
-    if st.session_state.get("last_processed_voice_note_hash") == note_hash:
-        return
-
-    transcript_text, transcript_error = get_story_note_transcription(
-        audio_bytes,
-        getattr(voice_note, "type", "audio/wav"),
-        get_story_note_language_code(selected_lang),
-    )
-
-    st.session_state.last_processed_voice_note_hash = note_hash
-
-    if transcript_text:
-        st.session_state.pending_details_append = transcript_text
-        st.session_state.voice_note_status = "success"
-        st.session_state.voice_note_error_message = ""
-    else:
-        st.session_state.voice_note_status = "error"
-        st.session_state.voice_note_error_message = transcript_error or ""
-
-    st.session_state.voice_note_widget_version = st.session_state.get("voice_note_widget_version", 0) + 1
-    st.rerun()
-
-
-def queue_story_voice_note_processing():
-    st.session_state.voice_note_pending_process = True
-
-
 def get_streamlit_secret(name):
     try:
         return st.secrets[name]
@@ -1254,10 +1197,6 @@ def reset_authenticated_session():
     st.session_state.monthly_story_bonus = 0
     st.session_state.billing_notice = ""
     st.session_state.details_input = ""
-    st.session_state.last_processed_voice_note_hash = ""
-    st.session_state.voice_note_pending_process = False
-    st.session_state.voice_note_status = ""
-    st.session_state.voice_note_error_message = ""
     st.session_state.story_generation_job = None
     st.session_state.audio_generation_job = None
     st.session_state.story_generation_error = ""
@@ -1322,12 +1261,6 @@ lang_dict = {
         "details": "О чём сейчас важно рассказать?",
         "details_placeholder": "Например: ребёнок боится темноты, скучает по детскому саду или учится делиться игрушками.",
         "details_help": "Можно описать ситуацию, любимых животных, настроение ребёнка или желаемый финал.",
-        "details_voice_label": "Микрофон для диктовки",
-        "details_voice_hint": "Можно писать вручную или нажать микрофон справа и надиктовать сюжет.",
-        "details_voice_added": "Голос добавлен прямо в описание сюжета.",
-        "spinner_transcribe": "Распознаём голосовую заметку...",
-        "warning_transcribe_failed": "Не получилось превратить запись в текст. Попробуй ещё раз.",
-        "warning_transcribe_failed_reason": "Причина распознавания",
         "btn_create": "Создать сказку",
         "btn_create_hint": "Мы сделаем историю тёплой, безопасной и подходящей для чтения перед сном.",
         "sidebar_library": "Мои сказки",
@@ -1521,12 +1454,6 @@ lang_dict = {
         "details": "What feels important right now?",
         "details_placeholder": "For example: the child is afraid of the dark, misses preschool, or is learning to share toys.",
         "details_help": "You can mention favorite animals, a current struggle, bedtime mood, or the ending you hope for.",
-        "details_voice_label": "Microphone for dictation",
-        "details_voice_hint": "You can type manually or tap the mic on the right and dictate the story note.",
-        "details_voice_added": "Your voice note was added right into the story details.",
-        "spinner_transcribe": "Transcribing your voice note...",
-        "warning_transcribe_failed": "We couldn't turn the recording into text. Please try again.",
-        "warning_transcribe_failed_reason": "Transcription reason",
         "btn_create": "Create story",
         "btn_create_hint": "We will make it gentle, age-appropriate, and comfortable for bedtime.",
         "sidebar_library": "My stories",
@@ -1720,12 +1647,6 @@ lang_dict = {
         "details": "Ce este important acum?",
         "details_placeholder": "De exemplu: copilului îi este teamă de întuneric, îi este dor de grădiniță sau învață să împartă jucăriile.",
         "details_help": "Poți menționa animale preferate, o provocare actuală, starea de seară sau finalul dorit.",
-        "details_voice_label": "Microfon pentru dictare",
-        "details_voice_hint": "Poți scrie manual sau poți apăsa microfonul din dreapta și dicta ideea poveștii.",
-        "details_voice_added": "Mesajul vocal a fost adăugat direct în detaliile poveștii.",
-        "spinner_transcribe": "Transformăm vocea în text...",
-        "warning_transcribe_failed": "Nu am putut transforma înregistrarea în text. Încearcă din nou.",
-        "warning_transcribe_failed_reason": "Motivul transcrierii",
         "btn_create": "Creează povestea",
         "btn_create_hint": "Vom crea o poveste caldă, sigură și potrivită pentru seară.",
         "sidebar_library": "Poveștile mele",
@@ -1882,12 +1803,6 @@ if "force_intro" not in st.session_state:
     st.session_state.force_intro = False
 if "details_input" not in st.session_state:
     st.session_state.details_input = ""
-if "last_processed_voice_note_hash" not in st.session_state:
-    st.session_state.last_processed_voice_note_hash = ""
-if "voice_note_widget_version" not in st.session_state:
-    st.session_state.voice_note_widget_version = 0
-if "voice_note_pending_process" not in st.session_state:
-    st.session_state.voice_note_pending_process = False
 if "bg_music_volume" not in st.session_state:
     st.session_state.bg_music_volume = 42
 if "show_music_controls" not in st.session_state:
@@ -2557,50 +2472,14 @@ else:
                 f'<div class="section-label">{copy_pack.get("section_details", "Details")}</div>',
                 unsafe_allow_html=True,
             )
-            apply_pending_story_details()
-            voice_note_key = f"details_voice_note_{st.session_state.voice_note_widget_version}"
-
-            details_col, mic_col = st.columns([7, 1], gap="small")
-            with details_col:
-                details = st.text_area(
-                    copy_pack.get("details", "Story details"),
-                    key="details_input",
-                    label_visibility="collapsed",
-                    placeholder=copy_pack.get("details_placeholder", ""),
-                )
-            with mic_col:
-                voice_note = st.audio_input(
-                    copy_pack.get("details_voice_label", "Microphone for dictation"),
-                    label_visibility="collapsed",
-                    key=voice_note_key,
-                    on_change=queue_story_voice_note_processing,
-                )
+            details = st.text_area(
+                copy_pack.get("details", "Story details"),
+                key="details_input",
+                label_visibility="collapsed",
+                placeholder=copy_pack.get("details_placeholder", ""),
+            )
 
             st.caption(copy_pack.get("details_help", ""))
-            st.caption(copy_pack.get("details_voice_hint", ""))
-
-            voice_note_status = st.session_state.pop("voice_note_status", None)
-            voice_note_error_message = st.session_state.pop("voice_note_error_message", "")
-
-            if st.session_state.pop("voice_note_pending_process", False):
-                pending_voice_note = st.session_state.get(voice_note_key)
-                if pending_voice_note is not None:
-                    with st.spinner(copy_pack.get("spinner_transcribe", "Transcribing your voice note...")):
-                        maybe_process_story_voice_note(pending_voice_note, st.session_state.sel_lang)
-
-            if voice_note_status == "success":
-                st.success(copy_pack.get("details_voice_added", "Your voice note was added right into the story details."))
-            elif voice_note_status == "error":
-                st.warning(
-                    copy_pack.get(
-                        "warning_transcribe_failed",
-                        "We couldn't turn the recording into text. Please try again.",
-                    )
-                )
-                if voice_note_error_message:
-                    st.caption(
-                        f"{copy_pack.get('warning_transcribe_failed_reason', 'Transcription reason')}: {voice_note_error_message}"
-                    )
 
             selected_skills = ", ".join(skills) if skills else copy_pack.get("summary_default_skills", "")
             story_summary = copy_pack.get(

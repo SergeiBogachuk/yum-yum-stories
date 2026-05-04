@@ -53,16 +53,25 @@ def apply_styles():
         }
 
         [data-testid="stAppViewContainer"],
-        [data-testid="stSidebar"],
-        header[data-testid="stHeader"] {
+        [data-testid="stSidebar"] {
             position: relative;
             z-index: 1;
         }
 
+        #MainMenu,
+        footer,
+        [data-testid="stToolbar"],
+        [data-testid="stDecoration"],
+        [data-testid="stStatusWidget"],
         header[data-testid="stHeader"] {
-            background: rgba(252, 247, 240, 0.7) !important;
-            border-bottom: 1px solid rgba(118, 91, 64, 0.06) !important;
-            backdrop-filter: blur(14px) !important;
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            min-height: 0 !important;
+        }
+
+        [data-testid="stAppViewContainer"] {
+            background: transparent !important;
         }
 
         [data-testid="collapsedControl"] {
@@ -75,7 +84,7 @@ def apply_styles():
         [data-testid="block-container"] {
             max-width: 960px !important;
             margin-top: 28px !important;
-            margin-bottom: 44px !important;
+            margin-bottom: 0 !important;
             padding: 2.45rem 2.25rem 2.3rem 2.25rem !important;
             background:
                 linear-gradient(180deg, rgba(255, 251, 246, 0.92), rgba(255, 248, 242, 0.84)) !important;
@@ -466,39 +475,6 @@ def apply_styles():
             color: #fffaf5 !important;
         }
 
-        [data-testid="stAudioInput"] {
-            margin-top: 3px !important;
-        }
-
-        [data-testid="stAudioInput"] > label,
-        [data-testid="stAudioInput"] [data-testid="stAudioInputInstructions"],
-        [data-testid="stAudioInput"] [data-testid="stAudioInputWaveSurfer"],
-        [data-testid="stAudioInput"] [data-testid="stAudioInputWaveformTimeCode"] {
-            display: none !important;
-        }
-
-        [data-testid="stAudioInput"] button {
-            min-height: 58px !important;
-            height: 58px !important;
-            width: 58px !important;
-            min-width: 58px !important;
-            border-radius: 18px !important;
-            padding: 0 !important;
-            background: linear-gradient(180deg, #2d2620, #231d18) !important;
-            border: 1px solid rgba(255, 238, 219, 0.1) !important;
-            box-shadow: 0 14px 28px rgba(35, 29, 24, 0.18) !important;
-        }
-
-        [data-testid="stAudioInput"] button:hover {
-            transform: translateY(-1px) !important;
-            box-shadow: 0 18px 30px rgba(35, 29, 24, 0.22) !important;
-        }
-
-        [data-testid="stAudioInput"] svg {
-            fill: #fff3e3 !important;
-            color: #fff3e3 !important;
-        }
-
         .stCheckbox {
             background: rgba(255, 249, 241, 0.86) !important;
             padding: 13px 16px !important;
@@ -718,6 +694,7 @@ def apply_styles():
                 padding: 1.4rem 1rem 1.5rem 1rem !important;
                 border-radius: 24px !important;
                 margin-top: 10px !important;
+                margin-bottom: 0 !important;
             }
 
             .hero-title {
@@ -741,12 +718,6 @@ def apply_styles():
                 min-height: 0;
             }
 
-            [data-testid="stAudioInput"] button {
-                min-height: 52px !important;
-                height: 52px !important;
-                width: 52px !important;
-                min-width: 52px !important;
-            }
         }
         </style>
         """,
