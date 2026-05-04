@@ -103,6 +103,33 @@ def apply_styles():
             backdrop-filter: blur(18px) !important;
         }
 
+        [data-testid="block-container"]:has(.login-page-marker) {
+            max-width: min(1040px, calc(100vw - 38px)) !important;
+            padding-bottom: 1.65rem !important;
+        }
+
+        [data-testid="block-container"]:has(.login-page-marker) .stSelectbox {
+            max-width: 720px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        [data-testid="block-container"]:has(.login-page-marker) [data-testid="stForm"],
+        [data-testid="block-container"]:has(.login-page-marker) div[data-testid="stHorizontalBlock"] {
+            max-width: 720px !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+        }
+
+        [data-testid="block-container"]:has(.login-page-marker) [data-testid="stForm"] {
+            padding: 1rem 1rem 1.05rem 1rem !important;
+            border-radius: 24px !important;
+            background:
+                linear-gradient(180deg, rgba(255, 251, 245, 0.88), rgba(248, 239, 226, 0.64)) !important;
+            border: 1px solid rgba(123, 91, 58, 0.18) !important;
+            box-shadow: 0 18px 44px rgba(67, 43, 25, 0.08) !important;
+        }
+
         [data-testid="stSidebar"] {
             background:
                 radial-gradient(circle at 22% 0%, rgba(255, 209, 151, 0.22), transparent 30%),
@@ -182,6 +209,48 @@ def apply_styles():
             margin: 0 auto 1.55rem auto;
             max-width: 700px;
             text-wrap: balance;
+        }
+
+        .login-benefits {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            max-width: 820px;
+            margin: 0 auto 1.35rem auto;
+        }
+
+        .login-benefit {
+            padding: 10px 14px;
+            border-radius: 999px;
+            background:
+                linear-gradient(135deg, rgba(255, 251, 246, 0.96), rgba(255, 239, 219, 0.9));
+            border: 1px solid rgba(151, 102, 61, 0.18);
+            box-shadow: 0 12px 26px rgba(83, 54, 31, 0.07);
+            color: #725238;
+            font-size: 0.92rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+
+        .support-compact {
+            max-width: 720px;
+            margin: 1.55rem auto 0.65rem auto;
+            padding-top: 0.95rem;
+            border-top: 1px solid rgba(105, 77, 49, 0.12);
+        }
+
+        .support-compact .section-label {
+            margin-top: 0;
+            margin-bottom: 6px;
+            opacity: 0.86;
+        }
+
+        .support-compact p {
+            margin: 0;
+            color: var(--ink-muted);
+            font-size: 0.92rem;
+            line-height: 1.65;
         }
 
         .sidebar-brand {
@@ -751,6 +820,12 @@ def apply_styles():
                 min-height: auto !important;
             }
 
+            [data-testid="block-container"]:has(.login-page-marker) {
+                max-width: calc(100vw - 18px) !important;
+                padding-left: 0.9rem !important;
+                padding-right: 0.9rem !important;
+            }
+
             .hero-title {
                 font-size: 2.35rem !important;
             }
@@ -761,6 +836,22 @@ def apply_styles():
 
             .hero-subtitle {
                 font-size: 0.98rem !important;
+            }
+
+            .login-benefits {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+                margin-bottom: 1.05rem;
+            }
+
+            .login-benefit {
+                text-align: center;
+                white-space: normal;
+            }
+
+            .support-compact {
+                margin-top: 1.25rem;
             }
 
             .story-output {

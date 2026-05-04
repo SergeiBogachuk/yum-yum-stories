@@ -992,7 +992,7 @@ def build_mailto_link(email, subject, body=""):
     return f"mailto:{safe_email}?{'&'.join(params)}"
 
 
-def render_support_panel(copy_pack, user_email=""):
+def render_support_panel(copy_pack, user_email="", compact=False):
     support_email = get_support_email()
     if not support_email:
         return
@@ -1009,6 +1009,34 @@ def render_support_panel(copy_pack, user_email=""):
         "support_help_body",
         "Hi,\n\nI need help with Yum-Yum Stories.\n\nEmail: {user_email}\n\nWhat happened:\n\nWhat I expected:\n\nDevice/browser:\n",
     ).format(user_email=safe_user_email)
+
+    if compact:
+        st.markdown(
+            f"""
+            <div class="support-compact">
+                <div class="section-label">{html.escape(copy_pack.get("support_title", "Support"))}</div>
+                <p>{html.escape(copy_pack.get("support_hint", "Questions, bugs, or payment issues? Send us a quick message."))}</p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        feedback_col, help_col = st.columns(2)
+        with feedback_col:
+            st.link_button(
+                copy_pack.get("support_feedback_btn", "Send feedback"),
+                build_mailto_link(support_email, feedback_subject, feedback_body),
+                use_container_width=True,
+            )
+        with help_col:
+            st.link_button(
+                copy_pack.get("support_help_btn", "Get help"),
+                build_mailto_link(support_email, help_subject, help_body),
+                use_container_width=True,
+            )
+        st.caption(
+            copy_pack.get("support_email_label", "Support email: {email}").format(email=support_email)
+        )
+        return
 
     st.markdown(
         f'<div class="section-label">{copy_pack.get("support_title", "Support")}</div>',
@@ -1213,10 +1241,15 @@ lang_dict = {
         "subtitle": "Тёплые сказки на ночь, которые мягко развивают важные навыки.",
         "login_badge": "Для родителей",
         "login_subtitle": "Соберите свою спокойную библиотеку историй для сна, поддержки и роста.",
+        "login_benefits": [
+            "Личная сказка за минуты",
+            "Мягкая озвучка",
+            "Спокойный ритуал перед сном",
+        ],
         "login_btn": "Войти",
         "login_error": "Не удалось войти. Проверь email и пароль.",
         "auth_tab_login": "Вход",
-        "auth_tab_signup": "Регистрация",
+        "auth_tab_signup": "Создать бесплатно",
         "auth_tab_reset": "Забыли пароль?",
         "signup_btn": "Создать аккаунт",
         "signup_password_confirm_label": "Повторите пароль",
@@ -1406,10 +1439,15 @@ lang_dict = {
         "subtitle": "Warm bedtime stories that gently support emotional growth and everyday skills.",
         "login_badge": "For parents",
         "login_subtitle": "Build a calm little library of stories for sleep, connection, and confidence.",
+        "login_benefits": [
+            "Personalized in minutes",
+            "Gentle narration",
+            "A calmer bedtime ritual",
+        ],
         "login_btn": "Log in",
         "login_error": "Login failed. Please check your email and password.",
         "auth_tab_login": "Log in",
-        "auth_tab_signup": "Create account",
+        "auth_tab_signup": "Create free account",
         "auth_tab_reset": "Forgot password?",
         "signup_btn": "Create account",
         "signup_password_confirm_label": "Confirm password",
@@ -1599,10 +1637,15 @@ lang_dict = {
         "subtitle": "Povești de seară calde, care sprijină blând emoțiile și obiceiurile bune.",
         "login_badge": "Pentru părinți",
         "login_subtitle": "Construiește o bibliotecă liniștită de povești pentru somn, apropiere și creștere.",
+        "login_benefits": [
+            "Personalizată în câteva minute",
+            "Narațiune blândă",
+            "Un ritual de seară mai liniștit",
+        ],
         "login_btn": "Autentificare",
         "login_error": "Autentificarea a eșuat. Verifică emailul și parola.",
         "auth_tab_login": "Autentificare",
-        "auth_tab_signup": "Creează cont",
+        "auth_tab_signup": "Creează cont gratis",
         "auth_tab_reset": "Ai uitat parola?",
         "signup_btn": "Creează cont",
         "signup_password_confirm_label": "Confirmă parola",
@@ -1855,6 +1898,8 @@ if not st.session_state.get("logged_in", False):
     copy_pack = lang_dict.get(current_lang, lang_dict["English"])
 
     with st.container():
+        st.markdown('<div class="login-page-marker"></div>', unsafe_allow_html=True)
+
         selected_lang = st.selectbox(
             copy_pack.get("language_selector", "Language"),
             lang_options,
@@ -1874,6 +1919,17 @@ if not st.session_state.get("logged_in", False):
             """,
             unsafe_allow_html=True,
         )
+
+        login_benefits = copy_pack.get("login_benefits", [])
+        if login_benefits:
+            benefit_items = "".join(
+                f'<div class="login-benefit">{html.escape(benefit)}</div>'
+                for benefit in login_benefits
+            )
+            st.markdown(
+                f'<div class="login-benefits">{benefit_items}</div>',
+                unsafe_allow_html=True,
+            )
 
         st.markdown("---")
         auth_mode = st.session_state.get("auth_mode", "login")
@@ -2061,7 +2117,7 @@ if not st.session_state.get("logged_in", False):
             or st.session_state.get("reset_email")
             or ""
         )
-        render_support_panel(copy_pack, support_email_value)
+        render_support_panel(copy_pack, support_email_value, compact=True)
 
 else:
     copy_pack = lang_dict.get(st.session_state.sel_lang, lang_dict["English"])
