@@ -1854,8 +1854,7 @@ if not st.session_state.get("logged_in", False):
     current_lang = st.session_state.get("sel_lang", "English")
     copy_pack = lang_dict.get(current_lang, lang_dict["English"])
 
-    _, center, _ = st.columns([1, 2, 1])
-    with center:
+    with st.container():
         selected_lang = st.selectbox(
             copy_pack.get("language_selector", "Language"),
             lang_options,
@@ -2347,9 +2346,7 @@ else:
     else:
         stop_bg_music()
 
-        _, center, _ = st.columns([1, 2, 1])
-
-        with center:
+        with st.container():
             st.markdown(
                 f"""
                 <div class="hero-badge">{copy_pack.get("title", BRAND_NAME)}</div>

@@ -79,6 +79,15 @@ def apply_styles():
             border: 1px solid var(--line) !important;
             border-radius: 14px !important;
             box-shadow: var(--shadow-sm) !important;
+            color: var(--ink) !important;
+            z-index: 2147483000 !important;
+        }
+
+        [data-testid="collapsedControl"] *,
+        [data-testid="collapsedControl"] svg {
+            color: var(--ink) !important;
+            fill: var(--ink) !important;
+            stroke: var(--ink) !important;
         }
 
         [data-testid="block-container"] {
@@ -96,19 +105,21 @@ def apply_styles():
 
         [data-testid="stSidebar"] {
             background:
-                radial-gradient(circle at top, rgba(255, 206, 151, 0.12), transparent 26%),
-                linear-gradient(180deg, var(--sidebar-0) 0%, var(--sidebar-1) 52%, var(--sidebar-2) 100%) !important;
-            border-right: 1px solid rgba(255, 234, 212, 0.08) !important;
-            box-shadow: inset -1px 0 0 rgba(255,255,255,0.04) !important;
+                radial-gradient(circle at 22% 0%, rgba(255, 209, 151, 0.22), transparent 30%),
+                linear-gradient(180deg, #1b1512 0%, #291f1a 48%, #38261f 100%) !important;
+            border-right: 1px solid rgba(255, 234, 212, 0.16) !important;
+            box-shadow:
+                inset -1px 0 0 rgba(255,255,255,0.07),
+                18px 0 56px rgba(42, 28, 19, 0.16) !important;
         }
 
         [data-testid="stSidebar"] * {
-            color: #f8f0e6;
+            color: #fff7ed !important;
         }
 
         [data-testid="stSidebar"] .stCaptionContainer,
         [data-testid="stSidebar"] .stCaptionContainer p {
-            color: rgba(248, 240, 230, 0.72) !important;
+            color: rgba(255, 247, 237, 0.78) !important;
         }
 
         [data-testid="stSidebar"] .stAlert {
@@ -119,7 +130,13 @@ def apply_styles():
         }
 
         [data-testid="stSidebar"] a {
-            color: #f9dec0 !important;
+            color: #ffe1b7 !important;
+            font-weight: 800 !important;
+        }
+
+        [data-testid="stSidebar"] .section-label {
+            color: #d8a26e !important;
+            text-shadow: 0 1px 0 rgba(0, 0, 0, 0.18);
         }
 
         h1, h2, h3 {
@@ -690,11 +707,48 @@ def apply_styles():
         }
 
         @media (max-width: 768px) {
+            .stApp,
+            [data-testid="stAppViewContainer"],
+            section[data-testid="stMain"] {
+                min-height: 100svh !important;
+                height: auto !important;
+            }
+
+            [data-testid="collapsedControl"] {
+                display: flex !important;
+                visibility: visible !important;
+                position: fixed !important;
+                top: max(12px, env(safe-area-inset-top)) !important;
+                left: max(12px, env(safe-area-inset-left)) !important;
+                width: 46px !important;
+                height: 46px !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: rgba(255, 250, 243, 0.98) !important;
+                border: 1px solid rgba(113, 82, 52, 0.22) !important;
+                border-radius: 16px !important;
+                box-shadow: 0 14px 34px rgba(42, 28, 19, 0.2) !important;
+                opacity: 1 !important;
+            }
+
+            [data-testid="stSidebar"] {
+                min-width: min(88vw, 340px) !important;
+                width: min(88vw, 340px) !important;
+                max-width: min(88vw, 340px) !important;
+                box-shadow: 24px 0 70px rgba(18, 12, 8, 0.42) !important;
+            }
+
+            [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+                padding-top: 1rem !important;
+                padding-bottom: 1.5rem !important;
+            }
+
             [data-testid="block-container"] {
                 padding: 1.4rem 1rem 1.5rem 1rem !important;
                 border-radius: 24px !important;
                 margin-top: 10px !important;
                 margin-bottom: 0 !important;
+                min-height: auto !important;
             }
 
             .hero-title {
