@@ -1008,11 +1008,12 @@ def apply_styles():
                 opacity: 1 !important;
             }
 
-            [data-testid="stSidebar"] {
-                min-width: min(88vw, 340px) !important;
-                width: min(88vw, 340px) !important;
-                max-width: min(88vw, 340px) !important;
+            [data-testid="stSidebar"][aria-expanded="true"] {
                 box-shadow: 24px 0 70px rgba(18, 12, 8, 0.42) !important;
+            }
+
+            [data-testid="stSidebar"][aria-expanded="false"] {
+                box-shadow: none !important;
             }
 
             [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
