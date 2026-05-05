@@ -7,13 +7,13 @@ def apply_styles():
         <style>
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
 
-        :root {
-            --bg-0: #f7f1e8;
-            --bg-1: #eadfce;
-            --bg-2: #dbc7b0;
-            --panel: rgba(255, 250, 243, 0.88);
-            --panel-strong: rgba(255, 251, 246, 0.98);
-            --panel-soft: rgba(255, 246, 236, 0.82);
+	        :root {
+	            --bg-0: #fffdf8;
+	            --bg-1: #f8eee2;
+	            --bg-2: #ead8c2;
+	            --panel: rgba(255, 252, 247, 0.9);
+	            --panel-strong: rgba(255, 251, 246, 0.98);
+	            --panel-soft: rgba(255, 246, 236, 0.82);
             --sidebar-0: #221c18;
             --sidebar-1: #2b221d;
             --sidebar-2: #3b2d26;
@@ -41,66 +41,228 @@ def apply_styles():
             font-family: "Manrope", sans-serif;
         }
 
-        .stApp {
-            color: var(--ink) !important;
-            background:
-                radial-gradient(circle at 12% 10%, rgba(255, 220, 184, 0.55), transparent 24%),
-                radial-gradient(circle at 88% 14%, rgba(255, 243, 225, 0.9), transparent 20%),
-                radial-gradient(circle at 50% 100%, rgba(219, 199, 176, 0.34), transparent 32%),
-                linear-gradient(180deg, var(--bg-0) 0%, var(--bg-1) 100%) !important;
+	        .stApp {
+	            color: var(--ink) !important;
+	            background:
+	                radial-gradient(circle at 18% 8%, rgba(255, 226, 194, 0.22), transparent 26%),
+	                radial-gradient(circle at 82% 4%, rgba(231, 242, 241, 0.52), transparent 30%),
+	                radial-gradient(circle at 50% 105%, rgba(169, 116, 77, 0.08), transparent 36%),
+	                linear-gradient(135deg, #fffdf9 0%, #f7efe5 54%, #efe1d1 100%) !important;
+	            position: relative;
+	            overflow-x: hidden;
+	            min-height: 100svh !important;
+	        }
+
+        [data-testid="stAppViewContainer"] {
             position: relative;
-            overflow-x: hidden;
+            z-index: 0;
         }
 
-        [data-testid="stAppViewContainer"],
         [data-testid="stSidebar"] {
             position: relative;
-            z-index: 1;
+            z-index: 20 !important;
+        }
+
+        @media (min-width: 769px) {
+            [data-testid="stSidebar"] {
+                display: block !important;
+                visibility: visible !important;
+                transform: translateX(0) !important;
+                opacity: 1 !important;
+                min-width: 292px !important;
+                width: 292px !important;
+                max-width: 292px !important;
+            }
+
+            [data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+                padding-top: 1rem !important;
+                padding-bottom: 1rem !important;
+            }
         }
 
         #MainMenu,
         footer,
-        [data-testid="stToolbar"],
-        [data-testid="stDecoration"],
-        [data-testid="stStatusWidget"],
-        header[data-testid="stHeader"] {
-            display: none !important;
-            visibility: hidden !important;
+	        [data-testid="stDecoration"],
+	        [data-testid="stStatusWidget"] {
+	            display: none !important;
+	            visibility: hidden !important;
+	            height: 0 !important;
+	            min-height: 0 !important;
+	        }
+
+	        header[data-testid="stHeader"] {
+	            display: block !important;
+	            visibility: visible !important;
+	            height: 0 !important;
+	            min-height: 0 !important;
+	            background: transparent !important;
+	            overflow: visible !important;
+	            pointer-events: none !important;
+	            z-index: 2147482000 !important;
+	        }
+
+        [data-testid="stToolbar"] {
+            display: flex !important;
+            visibility: visible !important;
             height: 0 !important;
             min-height: 0 !important;
+            background: transparent !important;
+            pointer-events: none !important;
+            overflow: visible !important;
         }
 
         [data-testid="stAppViewContainer"] {
             background: transparent !important;
         }
 
-        [data-testid="collapsedControl"] {
-            background: rgba(255, 248, 240, 0.92) !important;
-            border: 1px solid var(--line) !important;
-            border-radius: 14px !important;
+        section[data-testid="stMain"] {
+            background: transparent !important;
+            min-height: 0 !important;
+            padding-bottom: 0 !important;
+        }
+
+        section[data-testid="stMain"] > div,
+        [data-testid="stAppViewContainer"] > .main {
+            padding-bottom: 0 !important;
+        }
+
+        [data-testid="stBottomBlockContainer"],
+        [data-testid="stBottomBlockContainer"] * {
+            display: none !important;
+            visibility: hidden !important;
+            height: 0 !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+
+	        [data-testid="collapsedControl"],
+	        [data-testid="stExpandSidebarButton"],
+	        [data-testid="stSidebarCollapsedControl"],
+	        [data-testid="stSidebarCollapseButton"] {
+	            display: flex !important;
+	            visibility: visible !important;
+	            position: fixed !important;
+	            top: max(12px, env(safe-area-inset-top)) !important;
+	            left: max(12px, env(safe-area-inset-left)) !important;
+	            width: 44px !important;
+	            height: 44px !important;
+	            align-items: center !important;
+	            justify-content: center !important;
+	            background: rgba(255, 248, 240, 0.92) !important;
+	            border: 1px solid var(--line) !important;
+	            border-radius: 14px !important;
             box-shadow: var(--shadow-sm) !important;
             color: var(--ink) !important;
+            pointer-events: auto !important;
+            opacity: 1 !important;
             z-index: 2147483000 !important;
         }
 
         [data-testid="collapsedControl"] *,
-        [data-testid="collapsedControl"] svg {
+        [data-testid="collapsedControl"] svg,
+        [data-testid="stExpandSidebarButton"] *,
+        [data-testid="stExpandSidebarButton"] svg,
+        [data-testid="stSidebarCollapsedControl"] *,
+        [data-testid="stSidebarCollapsedControl"] svg,
+        [data-testid="stSidebarCollapseButton"] *,
+        [data-testid="stSidebarCollapseButton"] svg {
             color: var(--ink) !important;
             fill: var(--ink) !important;
             stroke: var(--ink) !important;
         }
 
-        [data-testid="block-container"] {
-            max-width: 960px !important;
-            margin-top: 28px !important;
-            margin-bottom: 0 !important;
-            padding: 2.45rem 2.25rem 2.3rem 2.25rem !important;
-            background:
-                linear-gradient(180deg, rgba(255, 251, 246, 0.92), rgba(255, 248, 242, 0.84)) !important;
-            border: 1px solid rgba(120, 89, 58, 0.11) !important;
-            border-radius: var(--radius-xl) !important;
-            box-shadow: var(--shadow-lg) !important;
-            backdrop-filter: blur(18px) !important;
+	        .block-container,
+	        [data-testid="block-container"],
+	        [data-testid="stMainBlockContainer"] {
+	            max-width: min(880px, calc(100vw - 44px)) !important;
+	            margin-left: auto !important;
+	            margin-right: auto !important;
+	            margin-top: 14px !important;
+	            margin-bottom: 0 !important;
+	            padding: 1.45rem 1.55rem 0.75rem 1.55rem !important;
+	            background:
+	                linear-gradient(180deg, rgba(255, 252, 247, 0.9), rgba(255, 248, 241, 0.78)) !important;
+	            border: 1px solid rgba(120, 89, 58, 0.11) !important;
+	            border-radius: var(--radius-xl) !important;
+	            box-shadow: 0 24px 58px rgba(65, 42, 22, 0.1) !important;
+	            backdrop-filter: blur(18px) !important;
+	        }
+
+	        [data-testid="block-container"]:has(.story-form-marker),
+	        .block-container:has(.story-form-marker),
+	        [data-testid="stMainBlockContainer"]:has(.story-form-marker) {
+	            max-width: min(720px, calc(100vw - 44px)) !important;
+	            padding: 0.85rem 1rem 0.25rem 1rem !important;
+	            border-radius: 28px !important;
+	            background:
+	                linear-gradient(180deg, rgba(255, 253, 248, 0.94), rgba(255, 249, 241, 0.86)) !important;
+	        }
+
+        [data-testid="stVerticalBlock"]:has(.story-form-marker),
+        [data-testid="stVerticalBlockBorderWrapper"]:has(.story-form-marker),
+        div:has(> .st-key-story_form_shell) {
+            max-width: min(700px, calc(100vw - 44px)) !important;
+            margin-left: auto !important;
+            margin-right: auto !important;
+            padding-bottom: 0 !important;
+        }
+
+	        [data-testid="block-container"]:has(.story-form-marker) > div,
+	        .block-container:has(.story-form-marker) > div {
+	            gap: 0.28rem !important;
+	        }
+
+        .st-key-story_form_shell {
+            max-width: min(700px, calc(100vw - 44px)) !important;
+            margin: 0 auto !important;
+            padding: 0.05rem 0 0 !important;
+        }
+
+        .st-key-story_form_shell [data-testid="stVerticalBlock"] {
+            gap: 0.28rem !important;
+        }
+
+        .st-key-story_form_shell .stTextInput,
+        .st-key-story_form_shell .stSelectbox,
+        .st-key-story_form_shell .stMultiSelect,
+        .st-key-story_form_shell .stTextArea {
+            margin-bottom: 0.14rem !important;
+        }
+
+        .st-key-story_form_shell .stTextInput input {
+            min-height: 38px !important;
+            padding: 0.42rem 0.78rem !important;
+        }
+
+        .st-key-story_form_shell div[data-baseweb="select"] > div {
+            min-height: 38px !important;
+        }
+
+        .st-key-story_form_shell [data-testid="stTextAreaRootElement"] {
+            border-radius: 16px !important;
+        }
+
+        .st-key-story_form_shell .stTextArea textarea {
+            min-height: 92px !important;
+            padding: 0.62rem 0.78rem !important;
+            line-height: 1.48 !important;
+        }
+
+        .st-key-story_form_shell div.stButton > button {
+            min-height: 40px !important;
+            border-radius: 14px !important;
+        }
+
+        .st-key-story_form_shell .stCheckbox {
+            padding: 8px 12px !important;
+            border-radius: 14px !important;
+        }
+
+        .st-key-story_form_shell .stCaptionContainer,
+        .st-key-story_form_shell .stCaptionContainer p {
+            line-height: 1.45 !important;
+            margin-top: -0.05rem !important;
         }
 
         [data-testid="block-container"]:has(.login-page-marker) {
@@ -201,15 +363,40 @@ def apply_styles():
             font-size: clamp(2.2rem, 4vw, 3.3rem);
         }
 
-        .hero-subtitle {
-            text-align: center;
-            color: var(--ink-soft);
-            font-size: 1.05rem;
+	        .hero-subtitle {
+	            text-align: center;
+	            color: var(--ink-soft);
+	            font-size: 1.05rem;
             line-height: 1.75;
             margin: 0 auto 1.55rem auto;
             max-width: 700px;
-            text-wrap: balance;
-        }
+	            text-wrap: balance;
+	        }
+
+	        [data-testid="block-container"]:has(.story-form-marker) .hero-badge,
+	        .block-container:has(.story-form-marker) .hero-badge,
+	        .st-key-story_form_shell .hero-badge {
+	            margin-bottom: 9px;
+	            padding: 7px 13px;
+	            font-size: 0.82rem;
+	        }
+
+	        [data-testid="block-container"]:has(.story-form-marker) .hero-title,
+	        .block-container:has(.story-form-marker) .hero-title,
+	        .st-key-story_form_shell .hero-title {
+	            font-size: clamp(2rem, 3vw, 3.05rem) !important;
+	            line-height: 0.96;
+	            margin-bottom: 0.28rem;
+	        }
+
+	        [data-testid="block-container"]:has(.story-form-marker) .hero-subtitle,
+	        .block-container:has(.story-form-marker) .hero-subtitle,
+	        .st-key-story_form_shell .hero-subtitle {
+	            max-width: 560px;
+	            margin-bottom: 0.48rem;
+	            font-size: 0.9rem;
+	            line-height: 1.44;
+	        }
 
         .login-benefits {
             display: flex;
@@ -270,15 +457,24 @@ def apply_styles():
             margin-bottom: 20px;
         }
 
-        .section-label {
-            margin-top: 10px;
-            margin-bottom: 10px;
-            font-size: 0.84rem;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            color: #7f6247 !important;
-        }
+	        .section-label {
+	            margin-top: 8px;
+	            margin-bottom: 7px;
+	            font-size: 0.8rem;
+	            font-weight: 800;
+	            letter-spacing: 0.08em;
+	            text-transform: uppercase;
+	            color: #7f6247 !important;
+	        }
+
+	        [data-testid="block-container"]:has(.story-form-marker) .section-label,
+	        .block-container:has(.story-form-marker) .section-label,
+	        .st-key-story_form_shell .section-label {
+	            margin-top: 0.38rem;
+	            margin-bottom: 0.22rem;
+	            font-size: 0.76rem;
+	            letter-spacing: 0.09em;
+	        }
 
         .soft-info-chip {
             width: fit-content;
@@ -374,18 +570,18 @@ def apply_styles():
             display: none !important;
         }
 
-        div[data-baseweb="input"] > div,
-        div[data-baseweb="select"] > div,
-        [data-testid="stTextAreaRootElement"] {
-            background: rgba(255, 251, 246, 0.96) !important;
-            border: 1px solid rgba(113, 82, 52, 0.14) !important;
-            border-radius: 20px !important;
-            color: var(--ink) !important;
-            box-shadow:
-                inset 0 1px 0 rgba(255,255,255,0.78),
-                0 10px 22px rgba(120, 76, 36, 0.045) !important;
-            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
-        }
+	        div[data-baseweb="input"] > div,
+	        div[data-baseweb="select"] > div,
+	        [data-testid="stTextAreaRootElement"] {
+	            background: rgba(255, 251, 246, 0.96) !important;
+	            border: 1px solid rgba(113, 82, 52, 0.14) !important;
+	            border-radius: 16px !important;
+	            color: var(--ink) !important;
+	            box-shadow:
+	                inset 0 1px 0 rgba(255,255,255,0.78),
+	                0 8px 18px rgba(120, 76, 36, 0.04) !important;
+	            transition: border-color 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease !important;
+	        }
 
         div[data-baseweb="input"] > div:focus-within,
         div[data-baseweb="select"] > div:focus-within,
@@ -398,25 +594,34 @@ def apply_styles():
             transform: translateY(-1px);
         }
 
-        .stTextInput input,
-        .stTextArea textarea {
-            color: var(--ink) !important;
+	        .stTextInput input,
+	        .stTextArea textarea {
+	            color: var(--ink) !important;
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
-            outline: none !important;
-        }
+	            outline: none !important;
+	        }
+
+	        .stTextInput input {
+	            min-height: 42px !important;
+	            padding: 0.54rem 0.9rem !important;
+	        }
+
+	        div[data-baseweb="select"] > div {
+	            min-height: 42px !important;
+	        }
 
         .stTextInput input::placeholder,
         .stTextArea textarea::placeholder {
             color: #a49382 !important;
         }
 
-        .stTextArea textarea {
-            min-height: 156px !important;
-            line-height: 1.75 !important;
-            padding: 0.9rem 1rem !important;
-        }
+	        .stTextArea textarea {
+	            min-height: 122px !important;
+	            line-height: 1.6 !important;
+	            padding: 0.76rem 0.95rem !important;
+	        }
 
         div[data-baseweb="select"] * {
             color: var(--ink) !important;
@@ -480,9 +685,9 @@ def apply_styles():
             box-shadow: 0 10px 22px rgba(120, 76, 36, 0.045) !important;
         }
 
-        button[role="tab"] {
-            min-height: 50px !important;
-            border-radius: 16px !important;
+	        button[role="tab"] {
+	            min-height: 44px !important;
+	            border-radius: 14px !important;
             color: var(--ink) !important;
             opacity: 1 !important;
             font-weight: 800 !important;
@@ -516,17 +721,17 @@ def apply_styles():
             color: #fffaf5 !important;
         }
 
-        div[data-baseweb="button-group"] {
-            background: rgba(255, 249, 241, 0.96) !important;
-            border: 1px solid rgba(113, 82, 52, 0.12) !important;
-            border-radius: 22px !important;
-            padding: 6px !important;
-            box-shadow: 0 10px 22px rgba(120, 76, 36, 0.045) !important;
-        }
+	        div[data-baseweb="button-group"] {
+	            background: rgba(255, 249, 241, 0.96) !important;
+	            border: 1px solid rgba(113, 82, 52, 0.12) !important;
+	            border-radius: 18px !important;
+	            padding: 5px !important;
+	            box-shadow: 0 10px 22px rgba(120, 76, 36, 0.045) !important;
+	        }
 
-        div[data-baseweb="button-group"] button[role="radio"] {
-            min-height: 50px !important;
-            border-radius: 16px !important;
+	        div[data-baseweb="button-group"] button[role="radio"] {
+	            min-height: 42px !important;
+	            border-radius: 13px !important;
             background: rgba(255, 251, 246, 0.96) !important;
             color: var(--ink) !important;
             opacity: 1 !important;
@@ -561,10 +766,10 @@ def apply_styles():
             color: #fffaf5 !important;
         }
 
-        .stCheckbox {
-            background: rgba(255, 249, 241, 0.86) !important;
-            padding: 13px 16px !important;
-            border-radius: 18px !important;
+	        .stCheckbox {
+	            background: rgba(255, 249, 241, 0.86) !important;
+	            padding: 10px 14px !important;
+	            border-radius: 16px !important;
             border: 1px solid rgba(113, 82, 52, 0.12) !important;
             box-shadow: 0 10px 20px rgba(120, 76, 36, 0.05) !important;
         }
@@ -586,9 +791,9 @@ def apply_styles():
             color: white !important;
         }
 
-        div.stButton > button {
-            min-height: 50px !important;
-            border-radius: 18px !important;
+	        div.stButton > button {
+	            min-height: 44px !important;
+	            border-radius: 16px !important;
             font-weight: 800 !important;
             letter-spacing: -0.01em !important;
             transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease !important;
@@ -620,13 +825,13 @@ def apply_styles():
             transform: translateY(-1px);
         }
 
-        div.stLinkButton > a,
-        .stLinkButton a {
+	        div.stLinkButton > a,
+	        .stLinkButton a {
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            min-height: 50px !important;
-            border-radius: 18px !important;
+	            min-height: 44px !important;
+	            border-radius: 16px !important;
             font-weight: 800 !important;
             letter-spacing: -0.01em !important;
             text-decoration: none !important;
@@ -775,15 +980,18 @@ def apply_styles():
             border-color: rgba(113, 82, 52, 0.08) !important;
         }
 
-        @media (max-width: 768px) {
-            .stApp,
-            [data-testid="stAppViewContainer"],
-            section[data-testid="stMain"] {
+	        @media (max-width: 768px) {
+	            .stApp,
+	            [data-testid="stAppViewContainer"],
+	            section[data-testid="stMain"] {
                 min-height: 100svh !important;
                 height: auto !important;
             }
 
-            [data-testid="collapsedControl"] {
+            [data-testid="collapsedControl"],
+            [data-testid="stExpandSidebarButton"],
+            [data-testid="stSidebarCollapsedControl"],
+            [data-testid="stSidebarCollapseButton"] {
                 display: flex !important;
                 visibility: visible !important;
                 position: fixed !important;
@@ -812,31 +1020,62 @@ def apply_styles():
                 padding-bottom: 1.5rem !important;
             }
 
-            [data-testid="block-container"] {
-                padding: 1.4rem 1rem 1.5rem 1rem !important;
-                border-radius: 24px !important;
-                margin-top: 10px !important;
-                margin-bottom: 0 !important;
-                min-height: auto !important;
+	            .block-container,
+	            [data-testid="block-container"],
+	            [data-testid="stMainBlockContainer"] {
+	                max-width: calc(100vw - 14px) !important;
+	                padding: 0.86rem 0.78rem 0.7rem 0.78rem !important;
+	                border-radius: 22px !important;
+	                margin-top: 8px !important;
+	                margin-bottom: 0 !important;
+	                min-height: auto !important;
+	            }
+
+	            [data-testid="block-container"]:has(.login-page-marker),
+	            .block-container:has(.login-page-marker),
+	            [data-testid="stMainBlockContainer"]:has(.login-page-marker),
+	            [data-testid="block-container"]:has(.story-form-marker),
+	            .block-container:has(.story-form-marker),
+	            [data-testid="stMainBlockContainer"]:has(.story-form-marker),
+	            .st-key-story_form_shell {
+	                max-width: calc(100vw - 14px) !important;
+	                padding-left: 0.78rem !important;
+	                padding-right: 0.78rem !important;
+	            }
+
+            .st-key-story_form_shell {
+                padding-top: 0 !important;
+                padding-bottom: 0 !important;
             }
 
-            [data-testid="block-container"]:has(.login-page-marker) {
-                max-width: calc(100vw - 18px) !important;
-                padding-left: 0.9rem !important;
-                padding-right: 0.9rem !important;
+            .st-key-story_form_shell [data-testid="stHorizontalBlock"] {
+                gap: 0.55rem !important;
             }
 
-            .hero-title {
-                font-size: 2.35rem !important;
-            }
+	            .hero-title {
+	                font-size: 2rem !important;
+	            }
 
             .story-title {
                 font-size: 2.05rem !important;
             }
 
-            .hero-subtitle {
-                font-size: 0.98rem !important;
-            }
+	            .hero-subtitle {
+	                font-size: 0.98rem !important;
+	                line-height: 1.48 !important;
+	            }
+
+	            .stTextInput input,
+	            div[data-baseweb="select"] > div,
+	            div.stButton > button,
+	            div.stLinkButton > a,
+	            .stLinkButton a {
+	                min-height: 40px !important;
+	            }
+
+	            .stTextArea textarea {
+	                min-height: 96px !important;
+	            }
 
             .login-benefits {
                 flex-direction: column;

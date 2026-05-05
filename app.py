@@ -2402,7 +2402,8 @@ else:
     else:
         stop_bg_music()
 
-        with st.container():
+        with st.container(key="story_form_shell"):
+            st.markdown('<div class="story-form-marker"></div>', unsafe_allow_html=True)
             st.markdown(
                 f"""
                 <div class="hero-badge">{copy_pack.get("title", BRAND_NAME)}</div>
