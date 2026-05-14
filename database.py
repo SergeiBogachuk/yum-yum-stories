@@ -34,6 +34,22 @@ def _create_supabase_client():
     )
 
 
+def _friendly_auth_error(error_message):
+    message = (error_message or "").strip()
+    lower_message = message.lower()
+
+    if not message:
+        return "Invalid email or password."
+    if "invalid login credentials" in lower_message:
+        return "Invalid email or password."
+    if "email not confirmed" in lower_message or "confirm" in lower_message:
+        return "Email is not confirmed yet."
+    if "missing required secret" in lower_message:
+        return "Server authentication settings are missing."
+
+    return message[:180]
+
+
 @st.cache_resource(show_spinner=False)
 def get_supabase():
     return _create_supabase_client()
@@ -92,7 +108,7 @@ def sign_in_user(email, password):
 
     return {
         "ok": False,
-        "error": auth_error_message,
+        "error": _friendly_auth_error(auth_error_message),
     }
 
 

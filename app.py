@@ -1248,6 +1248,7 @@ lang_dict = {
         ],
         "login_btn": "Войти",
         "login_error": "Не удалось войти. Проверь email и пароль.",
+        "login_error_detail": "Причина: {reason}",
         "auth_tab_login": "Вход",
         "auth_tab_signup": "Создать бесплатно",
         "auth_tab_reset": "Забыли пароль?",
@@ -1446,6 +1447,7 @@ lang_dict = {
         ],
         "login_btn": "Log in",
         "login_error": "Login failed. Please check your email and password.",
+        "login_error_detail": "Reason: {reason}",
         "auth_tab_login": "Log in",
         "auth_tab_signup": "Create free account",
         "auth_tab_reset": "Forgot password?",
@@ -1644,6 +1646,7 @@ lang_dict = {
         ],
         "login_btn": "Autentificare",
         "login_error": "Autentificarea a eșuat. Verifică emailul și parola.",
+        "login_error_detail": "Motiv: {reason}",
         "auth_tab_login": "Autentificare",
         "auth_tab_signup": "Creează cont gratis",
         "auth_tab_reset": "Ai uitat parola?",
@@ -2110,6 +2113,13 @@ if not st.session_state.get("logged_in", False):
                     st.rerun()
                 else:
                     st.error(copy_pack.get("login_error", "Login failed"))
+                    login_reason = sign_in_result.get("error", "")
+                    if login_reason:
+                        st.caption(
+                            copy_pack.get("login_error_detail", "Reason: {reason}").format(
+                                reason=login_reason
+                            )
+                        )
 
         support_email_value = (
             st.session_state.get("login_email")
