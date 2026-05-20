@@ -27,6 +27,10 @@ def _secret_or_env(name):
     raise RuntimeError(f"Missing required secret: {name}")
 
 
+def _normalize_email(email):
+    return (email or "").strip().lower()
+
+
 def _create_supabase_client():
     return create_client(
         _secret_or_env("SUPABASE_URL"),
@@ -56,12 +60,14 @@ def get_supabase():
 
 
 def check_user(email, password):
+    normalized_email = _normalize_email(email)
+
     try:
         result = (
             get_supabase()
             .table("users")
             .select("id")
-            .eq("email", email.strip())
+            .ilike("email", normalized_email)
             .eq("password", password)
             .limit(1)
             .execute()
@@ -72,7 +78,7 @@ def check_user(email, password):
 
 
 def sign_in_user(email, password):
-    normalized_email = (email or "").strip()
+    normalized_email = _normalize_email(email)
     auth_error_message = ""
 
     try:
@@ -89,7 +95,7 @@ def sign_in_user(email, password):
         if auth_user and getattr(auth_user, "email", None):
             return {
                 "ok": True,
-                "email": auth_user.email.strip(),
+                "email": _normalize_email(auth_user.email),
                 "provider": "supabase_auth",
                 "access_token": getattr(auth_session, "access_token", "") or "",
                 "refresh_token": getattr(auth_session, "refresh_token", "") or "",
@@ -113,7 +119,7 @@ def sign_in_user(email, password):
 
 
 def sign_up_user(email, password):
-    normalized_email = (email or "").strip()
+    normalized_email = _normalize_email(email)
 
     try:
         auth_client = _create_supabase_client()
@@ -130,7 +136,7 @@ def sign_up_user(email, password):
 
         return {
             "ok": True,
-            "email": getattr(auth_user, "email", normalized_email) or normalized_email,
+            "email": _normalize_email(getattr(auth_user, "email", normalized_email) or normalized_email),
             "provider": "supabase_auth",
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -145,7 +151,7 @@ def sign_up_user(email, password):
 
 
 def send_password_reset(email):
-    normalized_email = (email or "").strip()
+    normalized_email = _normalize_email(email)
 
     try:
         auth_client = _create_supabase_client()
@@ -172,12 +178,14 @@ def sign_out_user(access_token="", refresh_token=""):
 
 
 def get_user_stories(email):
+    normalized_email = _normalize_email(email)
+
     try:
         return (
             get_supabase()
             .table("stories")
             .select("*")
-            .eq("user_email", email.strip())
+            .ilike("user_email", normalized_email)
             .order("id", desc=True)
             .execute()
         )
@@ -186,12 +194,14 @@ def get_user_stories(email):
 
 
 def get_child_profiles(email):
+    normalized_email = _normalize_email(email)
+
     try:
         return (
             get_supabase()
             .table("child_profiles")
             .select("*")
-            .eq("user_email", email.strip())
+            .ilike("user_email", normalized_email)
             .order("child_name")
             .execute()
         )
@@ -200,7 +210,7 @@ def get_child_profiles(email):
 
 
 def save_child_profile(profile_data):
-    normalized_email = (profile_data.get("user_email") or "").strip()
+    normalized_email = _normalize_email(profile_data.get("user_email"))
     child_name = (profile_data.get("child_name") or "").strip()
 
     if not normalized_email or not child_name:
@@ -219,7 +229,7 @@ def save_child_profile(profile_data):
             get_supabase()
             .table("child_profiles")
             .select("id")
-            .eq("user_email", normalized_email)
+            .ilike("user_email", normalized_email)
             .eq("child_name", child_name)
             .limit(1)
             .execute()
@@ -254,7 +264,7 @@ def delete_child_profile(profile_id):
 
 def save_story(story_data):
     payload = {
-        "user_email": story_data.get("user_email"),
+        "user_email": _normalize_email(story_data.get("user_email")),
         "child_name": story_data.get("child_name"),
         "title": story_data.get("title"),
         "story_text": story_data.get("story_text"),
@@ -291,7 +301,7 @@ def delete_story(story_id):
 def track_event(event_name, user_email="", properties=None):
     payload = {
         "event_name": (event_name or "").strip(),
-        "user_email": (user_email or "").strip() or None,
+        "user_email": _normalize_email(user_email) or None,
         "properties": properties or {},
     }
 
